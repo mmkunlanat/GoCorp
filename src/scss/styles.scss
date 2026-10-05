@@ -1,2 +1,764 @@
+// Import Google Fonts (Prompt & Inter)
+@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap');
+
+// Set font family
+$font-family-sans-serif: 'Prompt', 'Inter', system-ui, -apple-system, sans-serif;
+
 // Import Bootstrap
 @import "bootstrap/scss/bootstrap.scss";
+
+// Custom styles for GoCorp Fleet Management
+
+body {
+    font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+}
+
+// Hero Header
+.fleet-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #172554 100%);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 60%),
+                    radial-gradient(circle at 80% 70%, rgba(99, 102, 241, 0.12) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .hero-badge {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #93c5fd;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 0.4rem 1rem;
+        border-radius: 50rem;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .stats-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        color: #fff;
+        transition: all 0.3s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .stats-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stats-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+    }
+}
+
+// Vehicle Filter & Search Bar
+.filter-search-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    margin-top: -2rem;
+    position: relative;
+    z-index: 10;
+
+    .search-input-group {
+        position: relative;
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.1rem;
+            z-index: 5;
+        }
+
+        .form-control {
+            padding-left: 2.75rem;
+            border-radius: 10px;
+            border: 1.5px solid #cbd5e1;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+
+            &:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+            }
+        }
+    }
+
+    .filter-btn {
+        border-radius: 50rem;
+        padding: 0.45rem 1.15rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: 1.5px solid #e2e8f0;
+        color: #475569;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        &.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+    }
+}
+
+// ==========================================
+// THAI LICENSE PLATE - REPLACING CAR IMAGE
+// ==========================================
+.car-plate-wrapper {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    padding: 1rem 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top-left-radius: calc(0.5rem - 1px);
+    border-top-right-radius: calc(0.5rem - 1px);
+    position: relative;
+    overflow: hidden;
+    min-height: 135px;
+    height: 135px;
+
+    // Background road/grille pattern
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+        background-size: 14px 14px;
+        opacity: 0.35;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6);
+        opacity: 0.85;
+    }
+}
+
+.thai-license-plate {
+    position: relative;
+    width: 100%;
+    max-width: 215px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 3px solid #0f172a;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 
+                inset 0 0 0 1.5px #f1f5f9;
+    padding: 5px 8px 4px 8px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+
+    // Bolt screws on license plate
+    .plate-bolt {
+        position: absolute;
+        top: 5px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #cbd5e1 30%, #64748b 90%);
+        border: 1px solid #475569;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        z-index: 3;
+
+        &-left {
+            left: 8px;
+        }
+
+        &-right {
+            right: 8px;
+        }
+    }
+
+    .plate-inner-border {
+        border: 1px solid #94a3b8;
+        border-radius: 5px;
+        padding: 4px 8px 3px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        position: relative;
+    }
+
+    .plate-dlt-seal {
+        position: absolute;
+        left: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.6rem;
+        font-weight: 700;
+        border: 1px solid currentColor;
+        border-radius: 3px;
+        padding: 0 2px;
+        opacity: 0.7;
+        line-height: 1;
+    }
+
+    // Main License Plate Number (เลขทะเบียนรถ)
+    .plate-number {
+        font-family: 'Prompt', -apple-system, sans-serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        line-height: 1.1;
+        text-align: center;
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    // Province Name (จังหวัด)
+    .plate-province {
+        font-family: 'Prompt', -apple-system, sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: 0.3px;
+        text-align: center;
+        margin-top: 1px;
+    }
+
+    // Distinct Thai Transport Dept Color Variations
+    // 1. รถเก๋งส่วนบุคคล (Black on White)
+    &.plate-type-sedan {
+        .plate-number, .plate-province, .plate-dlt-seal {
+            color: #0f172a;
+        }
+    }
+
+    // 2. รถตู้โดยสาร > 7 ที่นั่ง (Deep Blue on White)
+    &.plate-type-van {
+        .plate-number, .plate-province, .plate-dlt-seal {
+            color: #1d4ed8;
+        }
+        border-color: #1e3a8a;
+    }
+
+    // 3. รถกระบะบรรทุกส่วนบุคคล (Forest Green on White)
+    &.plate-type-pickup {
+        .plate-number, .plate-province, .plate-dlt-seal {
+            color: #15803d;
+        }
+        border-color: #14532d;
+    }
+
+    // 4. รถยนต์ไฟฟ้า EV (Cyan-Blue on White with EV indicator)
+    &.plate-type-ev {
+        .plate-number, .plate-province, .plate-dlt-seal {
+            color: #0284c7;
+        }
+        border-color: #0369a1;
+        box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35), 
+                    inset 0 0 0 1.5px #e0f2fe;
+    }
+}
+
+// Vehicle Cards
+.car-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    background: #ffffff;
+    overflow: hidden;
+
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12) !important;
+        border-color: #cbd5e1;
+
+        .thai-license-plate {
+            transform: scale(1.05);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55);
+        }
+    }
+
+    .card-status-badge {
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 10;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 0.4rem 0.75rem;
+        border-radius: 50rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .car-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.3;
+    }
+
+    // Compact Alert Pill (for near Tax or Maintenance)
+    .compact-alert-pill {
+        font-size: 0.76rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        line-height: 1.25;
+
+        &.alert-tax {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+
+            .badge {
+                font-size: 0.68rem;
+                padding: 0.2rem 0.45rem;
+            }
+        }
+
+        &.alert-maint {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+
+            .badge {
+                font-size: 0.68rem;
+                padding: 0.2rem 0.45rem;
+            }
+        }
+    }
+
+    // Compact Specs Row & Chips
+    .compact-specs-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .spec-chip {
+        font-size: 0.74rem;
+        background: #f1f5f9;
+        color: #475569;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+
+        i {
+            font-size: 0.78rem;
+        }
+    }
+
+    // Selected state
+    &.is-booked {
+        border: 2px solid #2563eb;
+        background: #f0f7ff;
+
+        .card-status-badge {
+            background-color: #2563eb !important;
+            color: #ffffff !important;
+        }
+    }
+}
+
+// Empty state
+.no-results-box {
+    display: none;
+    text-align: center;
+    padding: 4rem 1rem;
+    color: #64748b;
+
+    i {
+        font-size: 3.5rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+}
+
+// Booking Modal Details
+.modal-car-plate-preview {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+// Toast styling
+.toast-container {
+    z-index: 1100;
+}
+
+// ==========================================
+// TAX RENEWAL & MAINTENANCE SCHEDULE BLOCKS
+// ==========================================
+.vehicle-schedules {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    border: 1px dashed #cbd5e1;
+
+    &.has-alert {
+        background: #fffbeb;
+        border: 1.5px solid #fde68a;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
+    }
+
+    .schedule-item {
+        display: flex;
+        align-items: flex-start;
+        font-size: 0.8rem;
+        line-height: 1.35;
+
+        .schedule-icon {
+            font-size: 1rem;
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .schedule-title {
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .schedule-val {
+            color: #64748b;
+        }
+
+        .schedule-badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 2px;
+        }
+    }
+}
+
+.vehicle-schedules-normal {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.65rem;
+    background: #f8fafc;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    color: #64748b;
+}
+
+// Current Mileage Tag on card
+.current-mileage-tag {
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+}
+
+// ==========================================
+// PHOTO UPLOAD & MILEAGE TRACKING
+// ==========================================
+.mileage-input-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+
+    &:hover, &:focus-within {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.08);
+    }
+}
+
+.photo-upload-dropzone {
+    border: 2px dashed #94a3b8;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        background: #f1f5f9;
+        border-color: #3b82f6;
+    }
+
+    .dropzone-icon {
+        font-size: 2rem;
+        color: #64748b;
+        margin-bottom: 0.35rem;
+    }
+
+    .dropzone-text {
+        font-size: 0.85rem;
+        color: #475569;
+        font-weight: 500;
+    }
+
+    .dropzone-subtext {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+}
+
+.photo-preview-container {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0f172a;
+    border: 2px solid #3b82f6;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+
+    .btn-remove-photo {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(220, 38, 38, 0.85);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        cursor: pointer;
+        z-index: 10;
+        transition: background 0.2s;
+
+        &:hover {
+            background: #dc2626;
+        }
+    }
+
+    .photo-caption-badge {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(4px);
+        color: #ffffff;
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+        z-index: 5;
+    }
+}
+
+// Demo Photo trigger button
+.btn-demo-photo {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+}
+
+// ==========================================
+// DISTANCE & REIMBURSEMENT CALCULATION BOX
+// ==========================================
+.calc-result-box {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 14px;
+    padding: 1.5rem;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    .calc-title {
+        font-size: 0.9rem;
+        color: #93c5fd;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .calc-metric {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 0.85rem;
+        text-align: center;
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            color: #ffffff;
+        }
+
+        .metric-unit {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #cbd5e1;
+            margin-left: 0.25rem;
+        }
+    }
+
+    .calc-total-card {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        border-radius: 12px;
+        padding: 1.15rem 1.25rem;
+        color: #ffffff;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .total-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .total-formula {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .total-amount {
+            font-size: 2.1rem;
+            font-weight: 800;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    }
+}
+
+// Rate input group
+.rate-input-group {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 0.4rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+
+    input {
+        width: 70px;
+        text-align: center;
+        font-weight: 700;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 0.2rem 0.4rem;
+        background: #fff;
+    }
+}
+
+// Receipt & Claim Modal
+.receipt-wrapper {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+
+    .receipt-header {
+        border-bottom: 2px dashed #cbd5e1;
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .photo-compare-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.75rem;
+
+        img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .photo-compare-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #334155;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+    }
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #receiptModal, #receiptModal * {
+        visibility: visible;
+    }
+    #receiptModal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    .modal-footer, .btn-close {
+        display: none !important;
+    }
+}
+
