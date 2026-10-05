@@ -768,24 +768,17 @@
                             </div>
                             <!-- ข้อมูลกำหนดการเดินทาง-->
                             <div class="row g-3 mb-4">
-                                <div class="col-md-6">
+                                <div class="col-md-8">
                                     <label class="form-label fw-bold" for="bookingStartDate">
                                         <i class="bi bi-calendar-event me-1 text-primary"></i>
                                         วันที่และเวลาเริ่มใช้งาน *
                                     </label>
                                     <input class="form-control" id="bookingStartDate" type="datetime-local" required />
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="bookingEndDate">
-                                        <i class="bi bi-calendar-check me-1 text-primary"></i>
-                                        วันที่และเวลาสิ้นสุด *
-                                    </label>
-                                    <input class="form-control" id="bookingEndDate" type="datetime-local" required />
-                                </div>
-                                <div class="col-md-12">
+                                <div class="col-md-4">
                                     <label class="form-label fw-bold" for="passengerCount">
                                         <i class="bi bi-people me-1 text-primary"></i>
-                                        จำนวนผู้โดยสารรวม (คน)
+                                        จำนวนผู้โดยสาร (คน)
                                     </label>
                                     <input class="form-control" id="passengerCount" type="number" min="1" max="15" value="2" />
                                 </div>
@@ -835,12 +828,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer bg-light">
-                            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">ยกเลิก</button>
-                            <button class="btn btn-primary px-4" type="submit">
-                                <i class="bi bi-play-circle-fill me-1"></i>
-                                ยืนยันเริ่มใช้งานรถยนต์
-                            </button>
+                        <div class="modal-footer bg-light d-flex flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="validation-notice is-invalid-notice" id="bookingValidationNotice">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                <span>กรุณากรอกข้อมูลและแนบรูปภาพหน้าปัดไมล์</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">ยกเลิก</button>
+                                <button class="btn btn-primary px-4" id="btnSubmitBooking" type="submit" disabled>
+                                    <i class="bi bi-play-circle-fill me-1"></i>
+                                    ยืนยันเริ่มใช้งานรถยนต์
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -881,11 +880,15 @@
                                 </div>
                             </div>
                             <div class="row g-4">
-                                <!-- คอลัมน์ซ้าย: เลขไมล์เริ่มต้นที่บันทึกไว้-->
+                                <!-- คอลัมน์ซ้าย: ข้อมูลตอนเริ่มต้นที่บันทึกไว้-->
                                 <div class="col-md-6">
                                     <div class="card h-100 border bg-light">
                                         <div class="card-body p-3">
                                             <div class="badge bg-secondary mb-2">ตอนยังไม่ขับ (เริ่มต้น)</div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                                <span class="text-muted small">วันที่-เวลาเริ่ม:</span>
+                                                <span class="fw-semibold text-dark small" id="returnStartDateDisplay">-</span>
+                                            </div>
                                             <div class="d-flex justify-content-between align-items-baseline mb-2">
                                                 <span class="text-muted">เลขไมล์เริ่มต้น:</span>
                                                 <h4 class="fw-bold text-dark mb-0" id="returnStartMileageDisplay">48,250 กม.</h4>
@@ -898,11 +901,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- คอลัมน์ขวา: กรอกเลขไมล์ล่าสุดหลังใช้รถเสร็จ + แนบภาพถ่าย-->
+                                <!-- คอลัมน์ขวา: กรอกวันที่สิ้นสุด + เลขไมล์ล่าสุดหลังใช้รถเสร็จ + แนบภาพถ่าย-->
                                 <div class="col-md-6">
                                     <div class="card h-100 border-primary">
                                         <div class="card-body p-3">
                                             <div class="badge bg-primary mb-2">หลังจากใช้รถเสร็จ (สิ้นสุด)</div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold" for="returnEndDateInput">
+                                                    <i class="bi bi-calendar-check me-1 text-primary"></i>
+                                                    วันที่และเวลาสิ้นสุดการใช้งาน *
+                                                </label>
+                                                <input class="form-control" id="returnEndDateInput" type="datetime-local" required />
+                                            </div>
                                             <label class="form-label fw-bold" for="endMileageInput">กรอกเลขไมล์ที่แสดงล่าสุด (กม.) *</label>
                                             <div class="input-group mb-2">
                                                 <input class="form-control form-control-lg fw-bold text-primary" id="endMileageInput" type="number" required placeholder="เช่น 48315" />
@@ -963,12 +973,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer bg-light">
-                            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">ปิด</button>
-                            <button class="btn btn-success px-4" type="submit">
-                                <i class="bi bi-check2-all me-1"></i>
-                                ยืนยันการคืนรถและพิมพ์ใบเบิกเงิน
-                            </button>
+                        <div class="modal-footer bg-light d-flex flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="validation-notice is-invalid-notice" id="returnValidationNotice">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                <span>กรุณากรอกข้อมูลและแนบรูปภาพหน้าปัดไมล์</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">ปิด</button>
+                                <button class="btn btn-success px-4" id="btnSubmitReturn" type="submit" disabled>
+                                    <i class="bi bi-check2-all me-1"></i>
+                                    ยืนยันการคืนรถและพิมพ์ใบเบิกเงิน
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -999,7 +1015,7 @@
                                         <strong id="receiptTripId">TRIP-123456</strong>
                                     </div>
                                     <div class="small text-muted">
-                                        วันที่:
+                                        วันที่คืนรถ:
                                         <span id="receiptCompletedAt">-</span>
                                     </div>
                                 </div>
@@ -1011,6 +1027,11 @@
                                         <span class="badge bg-dark me-2" id="receiptPlate">1กข 8924</span>
                                         <span id="receiptCarName">Toyota Camry 2.5 HEV</span>
                                     </h5>
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-calendar-range me-1 text-primary"></i>
+                                        ช่วงเวลาใช้งาน:
+                                        <span id="receiptTripPeriod" class="fw-semibold text-dark">-</span>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="small text-muted">ข้อมูลผู้ขอใช้รถ</div>

@@ -475,20 +475,15 @@ html(lang='th')
 
                             // ข้อมูลกำหนดการเดินทาง
                             .row.g-3.mb-4
-                                .col-md-6
+                                .col-md-8
                                     label.form-label.fw-bold(for='bookingStartDate')
                                         i.bi.bi-calendar-event.me-1.text-primary
                                         | วันที่และเวลาเริ่มใช้งาน *
                                     input#bookingStartDate.form-control(type='datetime-local', required)
-                                .col-md-6
-                                    label.form-label.fw-bold(for='bookingEndDate')
-                                        i.bi.bi-calendar-check.me-1.text-primary
-                                        | วันที่และเวลาสิ้นสุด *
-                                    input#bookingEndDate.form-control(type='datetime-local', required)
-                                .col-md-12
+                                .col-md-4
                                     label.form-label.fw-bold(for='passengerCount')
                                         i.bi.bi-people.me-1.text-primary
-                                        | จำนวนผู้โดยสารรวม (คน)
+                                        | จำนวนผู้โดยสาร (คน)
                                     input#passengerCount.form-control(type='number', min='1', max='15', value='2')
 
                             // ส่วนบังคับ: กรอกเลขไมล์เริ่มต้น + ภาพถ่าย
@@ -531,11 +526,15 @@ html(lang='th')
                                                     i.bi.bi-image.me-1
                                                     | ใช้ภาพตัวอย่างหน้าปัดไมล์ (Demo)
 
-                        .modal-footer.bg-light
-                            button.btn.btn-outline-secondary(type='button', data-bs-dismiss='modal') ยกเลิก
-                            button.btn.btn-primary.px-4(type='submit')
-                                i.bi.bi-play-circle-fill.me-1
-                                | ยืนยันเริ่มใช้งานรถยนต์
+                        .modal-footer.bg-light.d-flex.flex-wrap.align-items-center.justify-content-between.gap-2
+                            #bookingValidationNotice.validation-notice.is-invalid-notice
+                                i.bi.bi-exclamation-triangle-fill.me-1
+                                span กรุณากรอกข้อมูลและแนบรูปภาพหน้าปัดไมล์
+                            div.d-flex.gap-2
+                                button.btn.btn-outline-secondary(type='button', data-bs-dismiss='modal') ยกเลิก
+                                button#btnSubmitBooking.btn.btn-primary.px-4(type='submit', disabled)
+                                    i.bi.bi-play-circle-fill.me-1
+                                    | ยืนยันเริ่มใช้งานรถยนต์
 
         // Modal 2: บันทึกเลขไมล์สิ้นสุดหลังใช้รถเสร็จ + ถ่ายรูป + คำนวณเงินค่าเดินทาง
         #returnModal.modal.fade(tabindex='-1', aria-labelledby='returnModalLabel', aria-hidden='true')
@@ -564,11 +563,14 @@ html(lang='th')
                                         span.small.ms-1.fw-bold บาท / กม.
 
                             .row.g-4
-                                // คอลัมน์ซ้าย: เลขไมล์เริ่มต้นที่บันทึกไว้
+                                // คอลัมน์ซ้าย: ข้อมูลตอนเริ่มต้นที่บันทึกไว้
                                 .col-md-6
                                     .card.h-100.border.bg-light
                                         .card-body.p-3
                                             .badge.bg-secondary.mb-2 ตอนยังไม่ขับ (เริ่มต้น)
+                                            .d-flex.justify-content-between.align-items-center.mb-2.pb-2.border-bottom
+                                                span.text-muted.small วันที่-เวลาเริ่ม:
+                                                span#returnStartDateDisplay.fw-semibold.text-dark.small -
                                             .d-flex.justify-content-between.align-items-baseline.mb-2
                                                 span.text-muted เลขไมล์เริ่มต้น:
                                                 h4#returnStartMileageDisplay.fw-bold.text-dark.mb-0 48,250 กม.
@@ -578,11 +580,16 @@ html(lang='th')
                                                 img#returnStartPhotoPreview(src='', alt='ภาพถ่ายไมล์เริ่มต้น')
                                                 span.photo-caption-badge ภาพถ่ายก่อนเดินทาง
 
-                                // คอลัมน์ขวา: กรอกเลขไมล์ล่าสุดหลังใช้รถเสร็จ + แนบภาพถ่าย
+                                // คอลัมน์ขวา: กรอกวันที่สิ้นสุด + เลขไมล์ล่าสุดหลังใช้รถเสร็จ + แนบภาพถ่าย
                                 .col-md-6
                                     .card.h-100.border-primary
                                         .card-body.p-3
                                             .badge.bg-primary.mb-2 หลังจากใช้รถเสร็จ (สิ้นสุด)
+                                            .mb-3
+                                                label.form-label.fw-bold(for='returnEndDateInput')
+                                                    i.bi.bi-calendar-check.me-1.text-primary
+                                                    | วันที่และเวลาสิ้นสุดการใช้งาน *
+                                                input#returnEndDateInput.form-control(type='datetime-local', required)
                                             label.form-label.fw-bold(for='endMileageInput')
                                                 | กรอกเลขไมล์ที่แสดงล่าสุด (กม.) *
                                             .input-group.mb-2
@@ -631,11 +638,15 @@ html(lang='th')
                                         .total-formula#calcFormulaDisplay (ระยะทาง 65 กม. × 5 บาท/กม.)
                                     .total-amount#calcTotalDisplay ฿ 325.00 บาท
 
-                        .modal-footer.bg-light
-                            button.btn.btn-outline-secondary(type='button', data-bs-dismiss='modal') ปิด
-                            button.btn.btn-success.px-4(type='submit')
-                                i.bi.bi-check2-all.me-1
-                                | ยืนยันการคืนรถและพิมพ์ใบเบิกเงิน
+                        .modal-footer.bg-light.d-flex.flex-wrap.align-items-center.justify-content-between.gap-2
+                            #returnValidationNotice.validation-notice.is-invalid-notice
+                                i.bi.bi-exclamation-triangle-fill.me-1
+                                span กรุณากรอกข้อมูลและแนบรูปภาพหน้าปัดไมล์
+                            div.d-flex.gap-2
+                                button.btn.btn-outline-secondary(type='button', data-bs-dismiss='modal') ปิด
+                                button#btnSubmitReturn.btn.btn-success.px-4(type='submit', disabled)
+                                    i.bi.bi-check2-all.me-1
+                                    | ยืนยันการคืนรถและพิมพ์ใบเบิกเงิน
 
         // Modal 3: ใบสรุปการขอรับเงินชดเชยค่าเดินทาง (Official Reimbursement Slip)
         #receiptModal.modal.fade(tabindex='-1', aria-labelledby='receiptModalLabel', aria-hidden='true')
@@ -655,7 +666,7 @@ html(lang='th')
                                 div.text-end
                                     .badge.bg-success.fs-6.mb-1 บันทึกสำเร็จ
                                     .small.text-muted รหัสเอกสาร: <strong id="receiptTripId">TRIP-123456</strong>
-                                    .small.text-muted วันที่: <span id="receiptCompletedAt">-</span>
+                                    .small.text-muted วันที่คืนรถ: <span id="receiptCompletedAt">-</span>
 
                             .row.mb-3
                                 .col-md-6
@@ -663,6 +674,9 @@ html(lang='th')
                                     h5.fw-bold.mb-1
                                         span#receiptPlate.badge.bg-dark.me-2 1กข 8924
                                         span#receiptCarName Toyota Camry 2.5 HEV
+                                    .small.text-muted.mt-1
+                                        i.bi.bi-calendar-range.me-1.text-primary
+                                        | ช่วงเวลาใช้งาน: <span id="receiptTripPeriod" class="fw-semibold text-dark">-</span>
                                 .col-md-6
                                     .small.text-muted ข้อมูลผู้ขอใช้รถ
                                     h6.fw-bold.mb-0

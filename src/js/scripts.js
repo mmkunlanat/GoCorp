@@ -71,6 +71,153 @@ document.addEventListener('DOMContentLoaded', function () {
         return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     }
 
+    // Helper: format ISO date-time string to readable Thai format
+    function formatDateTimeDisplay(isoStr) {
+        if (!isoStr) return '-';
+        try {
+            const d = new Date(isoStr);
+            if (isNaN(d.getTime())) return isoStr;
+            const pad = (n) => (n < 10 ? '0' : '') + n;
+            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const yearBe = d.getFullYear() > 2400 ? d.getFullYear() : d.getFullYear() + 543;
+            return `${d.getDate()} ${months[d.getMonth()]} ${yearBe} ${pad(d.getHours())}:${pad(d.getMinutes())} น.`;
+        } catch (e) {
+            return isoStr;
+        }
+    }
+
+    // Validation for Booking Form (Modal 1)
+    function validateBookingForm() {
+        const btnSubmit = document.getElementById('btnSubmitBooking');
+        const noticeEl = document.getElementById('bookingValidationNotice');
+        if (!btnSubmit) return false;
+
+        const startDateInput = document.getElementById('bookingStartDate');
+        const startMileageInput = document.getElementById('startMileageInput');
+        const passengerCountInput = document.getElementById('passengerCount');
+
+        const startDateVal = startDateInput ? startDateInput.value.trim() : '';
+        const mileageVal = startMileageInput ? parseInt(startMileageInput.value, 10) : 0;
+        const passengerVal = passengerCountInput ? parseInt(passengerCountInput.value, 10) : 1;
+        const minMileage = (currentSelectingVehicle && currentSelectingVehicle.currentMileage) ? currentSelectingVehicle.currentMileage : 0;
+
+        let missingParts = [];
+
+        if (!startDateVal) {
+            missingParts.push('วันเวลาเริ่มใช้งาน');
+            if (startDateInput) startDateInput.classList.add('is-invalid');
+        } else {
+            if (startDateInput) startDateInput.classList.remove('is-invalid');
+        }
+
+        if (!mileageVal || isNaN(mileageVal)) {
+            missingParts.push('เลขไมล์เริ่มต้น');
+            if (startMileageInput) startMileageInput.classList.add('is-invalid');
+        } else if (mileageVal < minMileage) {
+            missingParts.push(`เลขไมล์ต้อง ≥ ${minMileage.toLocaleString()} กม.`);
+            if (startMileageInput) startMileageInput.classList.add('is-invalid');
+        } else {
+            if (startMileageInput) startMileageInput.classList.remove('is-invalid');
+        }
+
+        if (isNaN(passengerVal) || passengerVal < 1) {
+            missingParts.push('จำนวนผู้โดยสาร');
+            if (passengerCountInput) passengerCountInput.classList.add('is-invalid');
+        } else {
+            if (passengerCountInput) passengerCountInput.classList.remove('is-invalid');
+        }
+
+        if (!startPhotoDataUrl) {
+            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์');
+        }
+
+        const isValid = missingParts.length === 0;
+
+        if (isValid) {
+            btnSubmit.disabled = false;
+            btnSubmit.removeAttribute('disabled');
+            if (noticeEl) {
+                noticeEl.className = 'validation-notice is-valid-notice';
+                noticeEl.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i><span>ข้อมูลและรูปถ่ายครบถ้วน พร้อมกดยืนยัน</span>';
+            }
+        } else {
+            btnSubmit.disabled = true;
+            btnSubmit.setAttribute('disabled', 'disabled');
+            if (noticeEl) {
+                noticeEl.className = 'validation-notice is-invalid-notice';
+                noticeEl.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i><span>กรุณากรอก: ${missingParts.join(', ')}</span>`;
+            }
+        }
+
+        return isValid;
+    }
+
+    // Validation for Return Form (Modal 2)
+    function validateReturnForm() {
+        const btnSubmit = document.getElementById('btnSubmitReturn');
+        const noticeEl = document.getElementById('returnValidationNotice');
+        if (!btnSubmit) return false;
+
+        const booking = activeBookings[currentReturningCarId];
+        if (!booking) {
+            btnSubmit.disabled = true;
+            btnSubmit.setAttribute('disabled', 'disabled');
+            return false;
+        }
+
+        const endDateInput = document.getElementById('returnEndDateInput');
+        const endMileageInput = document.getElementById('endMileageInput');
+
+        const endDateVal = endDateInput ? endDateInput.value.trim() : '';
+        const endMileageVal = endMileageInput ? parseInt(endMileageInput.value, 10) : 0;
+
+        let missingParts = [];
+
+        if (!endDateVal) {
+            missingParts.push('วันเวลาสิ้นสุดการใช้งาน');
+            if (endDateInput) endDateInput.classList.add('is-invalid');
+        } else if (booking.startDate && endDateVal < booking.startDate) {
+            missingParts.push('เวลาสิ้นสุดต้องไม่เกิดขึ้นก่อนเวลาเริ่มต้น');
+            if (endDateInput) endDateInput.classList.add('is-invalid');
+        } else {
+            if (endDateInput) endDateInput.classList.remove('is-invalid');
+        }
+
+        if (!endMileageVal || isNaN(endMileageVal)) {
+            missingParts.push('เลขไมล์ล่าสุด');
+            if (endMileageInput) endMileageInput.classList.add('is-invalid');
+        } else if (endMileageVal < booking.startMileage) {
+            missingParts.push(`เลขไมล์ต้อง ≥ ${booking.startMileage.toLocaleString()} กม.`);
+            if (endMileageInput) endMileageInput.classList.add('is-invalid');
+        } else {
+            if (endMileageInput) endMileageInput.classList.remove('is-invalid');
+        }
+
+        if (!endPhotoDataUrl) {
+            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์หลังใช้');
+        }
+
+        const isValid = missingParts.length === 0;
+
+        if (isValid) {
+            btnSubmit.disabled = false;
+            btnSubmit.removeAttribute('disabled');
+            if (noticeEl) {
+                noticeEl.className = 'validation-notice is-valid-notice';
+                noticeEl.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i><span>ข้อมูลและรูปถ่ายครบถ้วน พร้อมกดยืนยัน</span>';
+            }
+        } else {
+            btnSubmit.disabled = true;
+            btnSubmit.setAttribute('disabled', 'disabled');
+            if (noticeEl) {
+                noticeEl.className = 'validation-notice is-invalid-notice';
+                noticeEl.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i><span>กรุณากรอก: ${missingParts.join(', ')}</span>`;
+            }
+        }
+
+        return isValid;
+    }
+
     // 1. Search and Category Filter Logic
     function filterVehicles() {
         const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
@@ -159,14 +306,16 @@ document.addEventListener('DOMContentLoaded', function () {
         // Reset photo preview
         resetStartPhoto();
 
-        // Set default start/end dates
+        // Set default start date-time
         const now = new Date();
         const startInput = document.getElementById('bookingStartDate');
-        const endInput = document.getElementById('bookingEndDate');
         const pad = (n) => (n < 10 ? '0' : '') + n;
         const dateStr = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
-        if (startInput) startInput.value = dateStr + 'T09:00';
-        if (endInput) endInput.value = dateStr + 'T17:00';
+        const timeStr = pad(now.getHours()) + ':' + pad(now.getMinutes());
+        if (startInput) startInput.value = dateStr + 'T' + timeStr;
+
+        // Run validation immediately to set initial disabled state on confirm button
+        validateBookingForm();
 
         if (bookingModal) {
             bookingModal.show();
@@ -186,6 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (startPhotoPreview) startPhotoPreview.src = dataUrl;
         if (startPhotoContainer) startPhotoContainer.classList.remove('d-none');
         if (startPhotoDropzone) startPhotoDropzone.classList.add('d-none');
+        validateBookingForm();
     }
 
     function resetStartPhoto() {
@@ -193,6 +343,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (startPhotoInput) startPhotoInput.value = '';
         if (startPhotoContainer) startPhotoContainer.classList.add('d-none');
         if (startPhotoDropzone) startPhotoDropzone.classList.remove('d-none');
+        validateBookingForm();
     }
 
     if (startPhotoInput) {
@@ -230,27 +381,20 @@ document.addEventListener('DOMContentLoaded', function () {
     if (bookingForm) {
         bookingForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            if (!currentSelectingVehicle) return;
+            if (!validateBookingForm()) {
+                alert('กรุณากรอกข้อมูลและแนบภาพถ่ายหน้าปัดไมล์เริ่มต้นให้ครบถ้วนก่อนกดยืนยัน');
+                return;
+            }
 
             // ดึงข้อมูลผู้ขอใช้รถจากระบบโปรไฟล์
             const requesterName = currentUserProfile.name;
             const department = currentUserProfile.department;
             const purpose = currentUserProfile.purpose;
             const startDate = document.getElementById('bookingStartDate').value;
-            const endDate = document.getElementById('bookingEndDate').value;
             const passengers = document.getElementById('passengerCount').value;
             const startMileage = parseInt(document.getElementById('startMileageInput').value, 10);
 
-            if (isNaN(startMileage) || startMileage <= 0) {
-                alert('กรุณากรอกเลขไมล์เริ่มต้นให้ถูกต้อง');
-                return;
-            }
-
-            // If user did not upload a photo, generate demo photo automatically
-            let finalStartPhoto = startPhotoDataUrl;
-            if (!finalStartPhoto) {
-                finalStartPhoto = generateOdometerSvg(startMileage, 'ไมล์เริ่มต้น: ' + currentSelectingVehicle.plate);
-            }
+            const finalStartPhoto = startPhotoDataUrl;
 
             const bookingRecord = {
                 ...currentSelectingVehicle,
@@ -259,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 department,
                 purpose,
                 startDate,
-                endDate,
+                endDate: null,
                 passengers,
                 startMileage,
                 startPhoto: finalStartPhoto,
@@ -323,6 +467,24 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('returnStartMileageDisplay').textContent = booking.startMileage.toLocaleString() + ' กม.';
         document.getElementById('returnStartPhotoPreview').src = booking.startPhoto;
 
+        // Display start date-time
+        const returnStartDateDisplay = document.getElementById('returnStartDateDisplay');
+        if (returnStartDateDisplay) {
+            returnStartDateDisplay.textContent = formatDateTimeDisplay(booking.startDate);
+        }
+
+        // Pre-fill return end date-time to right now
+        const returnEndDateInput = document.getElementById('returnEndDateInput');
+        if (returnEndDateInput) {
+            const now = new Date();
+            const pad = (n) => (n < 10 ? '0' : '') + n;
+            const nowIso = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+            returnEndDateInput.value = nowIso;
+            if (booking.startDate) {
+                returnEndDateInput.setAttribute('min', booking.startDate);
+            }
+        }
+
         // Pre-fill end mileage (start + 65 km as typical demo trip)
         const suggestedEndMileage = booking.startMileage + 65;
         const endInput = document.getElementById('endMileageInput');
@@ -335,8 +497,25 @@ document.addEventListener('DOMContentLoaded', function () {
         // Calculate initially
         recalculateSettlement(booking.startMileage);
 
-        if (returnModal) {
-            returnModal.show();
+        // Run validation immediately to set initial disabled state on return button
+        validateReturnForm();
+
+        // Close history/active trips modal if currently open, then show return modal
+        if (historyModalEl && historyModalEl.classList.contains('show')) {
+            let shown = false;
+            const showNextModal = function () {
+                if (shown) return;
+                shown = true;
+                historyModalEl.removeEventListener('hidden.bs.modal', showNextModal);
+                if (returnModal) returnModal.show();
+            };
+            historyModalEl.addEventListener('hidden.bs.modal', showNextModal);
+            setTimeout(showNextModal, 350);
+            if (historyModal) historyModal.hide();
+        } else {
+            if (returnModal) {
+                returnModal.show();
+            }
         }
     });
 
@@ -353,6 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (endPhotoPreview) endPhotoPreview.src = dataUrl;
         if (endPhotoContainer) endPhotoContainer.classList.remove('d-none');
         if (endPhotoDropzone) endPhotoDropzone.classList.add('d-none');
+        validateReturnForm();
     }
 
     function resetEndPhoto() {
@@ -360,6 +540,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (endPhotoInput) endPhotoInput.value = '';
         if (endPhotoContainer) endPhotoContainer.classList.add('d-none');
         if (endPhotoDropzone) endPhotoDropzone.classList.remove('d-none');
+        validateReturnForm();
     }
 
     if (endPhotoInput) {
@@ -411,6 +592,12 @@ document.addEventListener('DOMContentLoaded', function () {
         endMileageInput.addEventListener('input', function () {
             const booking = activeBookings[currentReturningCarId];
             if (booking) recalculateSettlement(booking.startMileage);
+            validateReturnForm();
+        });
+        endMileageInput.addEventListener('change', function () {
+            const booking = activeBookings[currentReturningCarId];
+            if (booking) recalculateSettlement(booking.startMileage);
+            validateReturnForm();
         });
     }
 
@@ -421,6 +608,30 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Input change listeners for booking modal real-time validation
+    const startMileageInputEl = document.getElementById('startMileageInput');
+    const bookingStartDateEl = document.getElementById('bookingStartDate');
+    const passengerCountEl = document.getElementById('passengerCount');
+    if (startMileageInputEl) {
+        startMileageInputEl.addEventListener('input', validateBookingForm);
+        startMileageInputEl.addEventListener('change', validateBookingForm);
+    }
+    if (bookingStartDateEl) {
+        bookingStartDateEl.addEventListener('input', validateBookingForm);
+        bookingStartDateEl.addEventListener('change', validateBookingForm);
+    }
+    if (passengerCountEl) {
+        passengerCountEl.addEventListener('input', validateBookingForm);
+        passengerCountEl.addEventListener('change', validateBookingForm);
+    }
+
+    // Input change listeners for return modal real-time validation
+    const returnEndDateInputEl = document.getElementById('returnEndDateInput');
+    if (returnEndDateInputEl) {
+        returnEndDateInputEl.addEventListener('input', validateReturnForm);
+        returnEndDateInputEl.addEventListener('change', validateReturnForm);
+    }
+
     // 6. Submit Return & Generate Reimbursement Receipt
     const returnForm = document.getElementById('returnForm');
     if (returnForm) {
@@ -429,30 +640,29 @@ document.addEventListener('DOMContentLoaded', function () {
             const booking = activeBookings[currentReturningCarId];
             if (!booking) return;
 
-            const endMileage = parseInt(document.getElementById('endMileageInput').value, 10);
-            const ratePerKm = parseFloat(document.getElementById('ratePerKmInput').value || '5.00');
-
-            if (isNaN(endMileage) || endMileage < booking.startMileage) {
-                alert('เลขไมล์สิ้นสุดต้องไม่ต่ำกว่าเลขไมล์เริ่มต้น (' + booking.startMileage.toLocaleString() + ' กม.)');
+            if (!validateReturnForm()) {
+                alert('กรุณากรอกข้อมูลและแนบภาพถ่ายหน้าปัดไมล์หลังใช้รถให้ครบถ้วนก่อนกดยืนยัน');
                 return;
             }
 
-            let finalEndPhoto = endPhotoDataUrl;
-            if (!finalEndPhoto) {
-                finalEndPhoto = generateOdometerSvg(endMileage, 'ไมล์สิ้นสุด: ' + booking.plate);
-            }
+            const endMileage = parseInt(document.getElementById('endMileageInput').value, 10);
+            const ratePerKm = parseFloat(document.getElementById('ratePerKmInput').value || '5.00');
+            const returnEndDate = document.getElementById('returnEndDateInput') ? document.getElementById('returnEndDateInput').value : '';
+
+            const finalEndPhoto = endPhotoDataUrl;
 
             const distance = endMileage - booking.startMileage;
             const reimbursementAmount = distance * ratePerKm;
 
             const tripRecord = {
                 ...booking,
+                endDate: returnEndDate,
                 endMileage,
                 endPhoto: finalEndPhoto,
                 ratePerKm,
                 distance,
                 reimbursementAmount,
-                completedAt: new Date().toLocaleDateString('th-TH') + ' ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+                completedAt: formatDateTimeDisplay(returnEndDate)
             };
 
             // Store in completed trips
@@ -518,6 +728,11 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('receiptPurpose').textContent = record.purpose;
         document.getElementById('receiptCompletedAt').textContent = record.completedAt;
 
+        const periodEl = document.getElementById('receiptTripPeriod');
+        if (periodEl) {
+            periodEl.textContent = `${formatDateTimeDisplay(record.startDate)} - ${formatDateTimeDisplay(record.endDate)}`;
+        }
+
         // Mileage & Photos
         document.getElementById('receiptStartMileage').textContent = record.startMileage.toLocaleString() + ' กม.';
         document.getElementById('receiptEndMileage').textContent = record.endMileage.toLocaleString() + ' กม.';
@@ -576,6 +791,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                         <i class="bi bi-person me-1"></i>ผู้ใช้: ${item.requesterName} (${item.department})
                                     </div>
                                     <div class="small text-muted">
+                                        <i class="bi bi-clock me-1"></i>เริ่มใช้งาน: <strong>${formatDateTimeDisplay(item.startDate)}</strong>
+                                    </div>
+                                    <div class="small text-muted">
                                         <i class="bi bi-speedometer2 me-1"></i>ไมล์เริ่มต้น: <strong>${item.startMileage.toLocaleString()} กม.</strong>
                                     </div>
                                 </div>
@@ -601,7 +819,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <span class="badge bg-success me-2">เสร็จสิ้นแล้ว</span>
                                     <strong class="text-dark">${item.plate} - ${item.name}</strong>
                                     <div class="small text-muted mt-1">
-                                        ผู้ใช้: ${item.requesterName} • ระยะทาง: <strong>${item.distance} กม.</strong> (${item.ratePerKm} บ./กม.)
+                                        ผู้ใช้: ${item.requesterName} • คืนเมื่อ: <strong>${item.completedAt}</strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        ระยะทาง: <strong>${item.distance} กม.</strong> (${item.ratePerKm} บ./กม.)
                                     </div>
                                     <div class="small text-success fw-bold">
                                         เงินที่ได้รับ: ฿ ${item.reimbursementAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท
@@ -625,8 +846,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const index = parseInt(viewReceiptBtn.getAttribute('data-index'), 10);
         if (completedTrips[index]) {
             populateReceipt(completedTrips[index]);
-            if (historyModal) historyModal.hide();
-            if (receiptModal) receiptModal.show();
+            if (historyModalEl && historyModalEl.classList.contains('show')) {
+                let shown = false;
+                const showNextModal = function () {
+                    if (shown) return;
+                    shown = true;
+                    historyModalEl.removeEventListener('hidden.bs.modal', showNextModal);
+                    if (receiptModal) receiptModal.show();
+                };
+                historyModalEl.addEventListener('hidden.bs.modal', showNextModal);
+                setTimeout(showNextModal, 350);
+                if (historyModal) historyModal.hide();
+            } else {
+                if (receiptModal) receiptModal.show();
+            }
         }
     });
 

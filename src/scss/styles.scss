@@ -744,6 +744,29 @@ body {
     }
 }
 
+// Validation notice badge in modal footer
+.validation-notice {
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+
+    &.is-invalid-notice {
+        color: #dc2626;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+    }
+
+    &.is-valid-notice {
+        color: #16a34a;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+    }
+}
+
 @media print {
     body * {
         visibility: hidden;
