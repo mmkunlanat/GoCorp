@@ -1,232 +1,772 @@
 doctype html
-html(lang='en')
+html(lang='th')
 
     head
 
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
-        meta(name='description', content='')
-        meta(name='author', content='')
+        meta(name='description', content='ระบบเลือกใช้งานรถยนต์ส่วนกลาง GoCorp - เลขทะเบียน รอบต่อภาษี รอบซ่อมบำรุง และคำนวณเงินค่าเดินทางตามระยะทาง')
+        meta(name='author', content='GoCorp Fleet Management')
 
-        title Shop Homepage - Start Bootstrap Template
+        title GoCorp - ระบบเลือกใช้งานรถยนต์ส่วนกลาง
 
         // Favicon
         link(rel='icon', type='image/x-icon', href='assets/favicon.ico')
 
+        // Google Fonts (Prompt & Inter)
+        link(rel='preconnect', href='https://fonts.googleapis.com')
+        link(rel='preconnect', href='https://fonts.gstatic.com', crossorigin)
+        link(href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap', rel='stylesheet')
+
         // Bootstrap icons
-        link(href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css', rel='stylesheet')
+        link(href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css', rel='stylesheet')
 
         // Core theme CSS (includes Bootstrap)
         link(href='css/styles.css', rel='stylesheet')
 
     body
 
+        -
+            const vehicles = [
+                {
+                    id: 'car-1',
+                    plateNumber: '1กข 8924',
+                    province: 'กรุงเทพมหานคร',
+                    plateType: 'plate-type-sedan',
+                    category: 'sedan',
+                    categoryName: 'รถเก๋ง (Sedan)',
+                    name: 'Toyota Camry 2.5 HEV Premium',
+                    seats: '5 ที่นั่ง',
+                    transmission: 'ออโต้ E-CVT',
+                    fuel: 'ไฮบริด (Hybrid)',
+                    parking: 'อาคาร 1 (ช่อง A-01)',
+                    currentMileage: 48250,
+                    taxDue: '15 พ.ย. 2569',
+                    taxStatus: 'ปกติ (เหลือ 41 วัน)',
+                    taxBadgeClass: 'bg-success-subtle text-success',
+                    taxAlert: false,
+                    maintenanceDue: '50,000 กม. (15 ธ.ค. 69)',
+                    maintenanceStatus: 'ปกติ (อีก 1,750 กม.)',
+                    maintenanceBadgeClass: 'bg-success-subtle text-success',
+                    maintAlert: false,
+                    status: 'available',
+                    statusText: 'พร้อมใช้งาน',
+                    desc: 'รถซีดานหรู นั่งสบาย เหมาะสำหรับผู้บริหารและการติดต่อเจรจาธุรกิจ'
+                },
+                {
+                    id: 'car-2',
+                    plateNumber: '3ขผ 5412',
+                    province: 'กรุงเทพมหานคร',
+                    plateType: 'plate-type-sedan',
+                    category: 'sedan',
+                    categoryName: 'รถเก๋ง (Sedan)',
+                    name: 'Honda Civic 1.5 Turbo RS',
+                    seats: '5 ที่นั่ง',
+                    transmission: 'ออโต้ CVT',
+                    fuel: 'เบนซิน 95/E20',
+                    parking: 'อาคาร 1 (ช่อง A-02)',
+                    currentMileage: 32180,
+                    taxDue: '28 ม.ค. 2570',
+                    taxStatus: 'ปกติ (เหลือ 115 วัน)',
+                    taxBadgeClass: 'bg-success-subtle text-success',
+                    taxAlert: false,
+                    maintenanceDue: '40,000 กม. (10 ม.ค. 70)',
+                    maintenanceStatus: 'ปกติ (อีก 7,820 กม.)',
+                    maintenanceBadgeClass: 'bg-success-subtle text-success',
+                    maintAlert: false,
+                    status: 'available',
+                    statusText: 'พร้อมใช้งาน',
+                    desc: 'คล่องตัว ประหยัดเวลา เหมาะสำหรับเดินทางประชุมในเขตเมือง'
+                },
+                {
+                    id: 'car-3',
+                    plateNumber: 'นข 4589',
+                    province: 'กรุงเทพมหานคร',
+                    plateType: 'plate-type-van',
+                    category: 'van',
+                    categoryName: 'รถตู้ (Van)',
+                    name: 'Toyota Commuter 2.8 Diesel',
+                    seats: '12 ที่นั่ง',
+                    transmission: 'ธรรมดา 6MT',
+                    fuel: 'ดีเซล B7',
+                    parking: 'ลานจอด B (ช่อง B-01)',
+                    currentMileage: 89400,
+                    taxDue: '05 ธ.ค. 2569',
+                    taxStatus: 'ปกติ (เหลือ 61 วัน)',
+                    taxBadgeClass: 'bg-success-subtle text-success',
+                    taxAlert: false,
+                    maintenanceDue: '90,000 กม. (20 พ.ย. 69)',
+                    maintenanceStatus: 'ใกล้ถึงรอบ (อีก 600 กม.)',
+                    maintenanceBadgeClass: 'bg-warning-subtle text-warning-emphasis',
+                    maintAlert: true,
+                    status: 'available',
+                    statusText: 'พร้อมใช้งาน',
+                    desc: 'รถตู้โดยสารขนาดใหญ่ เหมาะสำหรับคณะทำงาน เดินทางสัมมนาเป็นกลุ่ม'
+                },
+                {
+                    id: 'car-4',
+                    plateNumber: '7กศ 9011',
+                    province: 'กรุงเทพมหานคร',
+                    plateType: 'plate-type-sedan',
+                    category: 'suv',
+                    categoryName: 'รถ SUV (7 ที่นั่ง)',
+                    name: 'Toyota Fortuner 2.8 Legender 4WD',
+                    seats: '7 ที่นั่ง',
+                    transmission: 'ออโต้ 6AT (4WD)',
+                    fuel: 'ดีเซล B7',
+                    parking: 'อาคาร 1 (ช่อง A-03)',
+                    currentMileage: 54600,
+                    taxDue: '20 ก.พ. 2570',
+                    taxStatus: 'ปกติ (เหลือ 138 วัน)',
+                    taxBadgeClass: 'bg-success-subtle text-success',
+                    taxAlert: false,
+                    maintenanceDue: '60,000 กม. (05 ก.พ. 70)',
+                    maintenanceStatus: 'ปกติ (อีก 5,400 กม.)',
+                    maintenanceBadgeClass: 'bg-success-subtle text-success',
+                    maintAlert: false,
+                    status: 'available',
+                    statusText: 'พร้อมใช้งาน',
+                    desc: 'สมรรถนะสูง ขับเคลื่อน 4 ล้อ ปลอดภัยทุกสภาพเส้นทางต่างจังหวัด'
+                },
+                {
+                    id: 'car-5',
+                    plateNumber: 'ฮฮ 9988',
+                    province: 'กรุงเทพมหานคร',
+                    plateType: 'plate-type-van',
+                    category: 'van',
+                    categoryName: 'รถตู้ VIP (Van)',
+                    name: 'Hyundai Staria VIP 2.2 Diesel',
+                    seats: '11 ที่นั่ง',
+                    transmission: 'ออโต้ 8AT',
+                    fuel: 'ดีเซล B7',
+                    parking: 'อาคาร VIP (ช่อง VIP-01)',
+                    currentMileage: 21350,
+                    taxDue: '10 มี.ค. 2570',
+                    taxStatus: 'ปกติ (เหลือ 156 วัน)',
+                    taxBadgeClass: 'bg-success-subtle text-success',
+                    taxAlert: false,
+                    maintenanceDue: '30,000 กม. (18 มี.ค. 70)',
+                    maintenanceStatus: 'ปกติ (อีก 8,650 กม.)',
+                    maintenanceBadgeClass: 'bg-success-subtle text-success',
+                    maintAlert: false,
+                    status: 'in-use',
+                    statusText: 'ติดภารกิจ (ถึง 16:30 น.)',
+                    desc: 'รถตู้หรูระดับ VIP เบาะปรับไฟฟ้า พร้อมรับรองแขกคนสำคัญขององค์กร'
+                },
+                {
+                    id: 'car-6',
+                    plateNumber: '4ขค 3120',
+                    province: 'กรุงเทพมหานคร',
+                    plateType: 'plate-type-pickup',
+                    category: 'pickup',
+                    categoryName: 'รถกระบะ (Pickup)',
+                    name: 'Isuzu D-Max Hi-Lander 3.0 Ddi',
+                    seats: '5 ที่นั่ง (4 ประตู)',
+                    transmission: 'ออโต้ 6AT',
+                    fuel: 'ดีเซล B7',
+                    parking: 'ลานจอด B (ช่อง B-02)',
+                    currentMileage: 67820,
+                    taxDue: '20 ต.ค. 2569',
+                    taxStatus: 'ใกล้ถึงกำหนด (เหลือ 15 วัน)',
+                    taxBadgeClass: 'bg-danger-subtle text-danger',
+                    taxAlert: true,
+                    maintenanceDue: '70,000 กม. (25 พ.ย. 69)',
+                    maintenanceStatus: 'ปกติ (อีก 2,180 กม.)',
+                    maintenanceBadgeClass: 'bg-success-subtle text-success',
+                    maintAlert: false,
+                    status: 'available',
+                    statusText: 'พร้อมใช้งาน',
+                    desc: 'กระบะยกสูง 4 ประตู มีพื้นที่บรรทุกเครื่องมือและอุปกรณ์ตรวจงาน'
+                },
+                {
+                    id: 'car-7',
+                    plateNumber: '2ฒน 7654',
+                    province: 'กรุงเทพมหานคร',
+                    plateType: 'plate-type-ev',
+                    category: 'ev',
+                    categoryName: 'รถยนต์ไฟฟ้า (EV)',
+                    name: 'BYD Seal AWD Performance',
+                    seats: '5 ที่นั่ง',
+                    transmission: 'ขับเคลื่อนไฟฟ้า 100%',
+                    fuel: 'แบตเตอรี่ (วิ่งได้ 520 กม.)',
+                    parking: 'สถานีชาร์จ (ช่อง EV-01)',
+                    currentMileage: 14200,
+                    taxDue: '30 เม.ย. 2570',
+                    taxStatus: 'ปกติ (เหลือ 207 วัน)',
+                    taxBadgeClass: 'bg-success-subtle text-success',
+                    taxAlert: false,
+                    maintenanceDue: '20,000 กม. (15 เม.ย. 70)',
+                    maintenanceStatus: 'ปกติ (อีก 5,800 กม.)',
+                    maintenanceBadgeClass: 'bg-success-subtle text-success',
+                    maintAlert: false,
+                    status: 'available',
+                    statusText: 'พร้อมใช้งาน (แบตฯ 95%)',
+                    desc: 'พลังงานสะอาด 100% ปลอดมลพิษ เร่งแรง พร้อมใช้งานทันที'
+                },
+                {
+                    id: 'car-8',
+                    plateNumber: '6กก 1122',
+                    province: 'กรุงเทพมหานคร',
+                    plateType: 'plate-type-sedan',
+                    category: 'suv',
+                    categoryName: 'รถ SUV (e:HEV)',
+                    name: 'Honda CR-V e:HEV RS 4WD',
+                    seats: '5 ที่นั่ง',
+                    transmission: 'ออโต้ E-CVT (4WD)',
+                    fuel: 'ไฮบริด (Hybrid)',
+                    parking: 'อาคาร 1 (ช่อง A-04)',
+                    currentMileage: 49980,
+                    taxDue: '12 ต.ค. 2569',
+                    taxStatus: 'ใกล้ถึงกำหนด (เหลือ 7 วัน)',
+                    taxBadgeClass: 'bg-danger-subtle text-danger',
+                    taxAlert: true,
+                    maintenanceDue: '50,000 กม. (วันนี้)',
+                    maintenanceStatus: 'อยู่ระหว่างเข้าศูนย์บริการ',
+                    maintenanceBadgeClass: 'bg-danger-subtle text-danger',
+                    maintAlert: true,
+                    status: 'maintenance',
+                    statusText: 'ซ่อมบำรุงตามระยะ',
+                    desc: 'SUV พรีเมียมระบบฟูลไฮบริด อยู่ระหว่างเช็กระยะรอบ 50,000 กม.'
+                }
+            ];
+
         // Navigation
-        nav.navbar.navbar-expand-lg.navbar-light.bg-light
+        nav.navbar.navbar-expand-lg.navbar-dark.bg-dark.sticky-top.shadow-sm
             .container.px-4.px-lg-5
-                a.navbar-brand(href='#!') Start Bootstrap
+                a.navbar-brand.d-flex.align-items-center(href='#!')
+                    i.bi.bi-car-front-fill.text-primary.fs-4.me-2
+                    span.fw-bold GoCorp
+                    span.badge.bg-primary.ms-2.fw-normal.small ยานพาหนะ
                 button.navbar-toggler(type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
                     span.navbar-toggler-icon
                 #navbarSupportedContent.collapse.navbar-collapse
                     ul.navbar-nav.me-auto.mb-2.mb-lg-0.ms-lg-4
                         li.nav-item
-                            a.nav-link.active(aria-current='page' href='#!') Home
+                            a.nav-link.active(aria-current='page' href='#!')
+                                i.bi.bi-house-door-fill.me-1
+                                | หน้าแรก
                         li.nav-item
-                            a.nav-link(href='#!') About
-                        li.nav-item.dropdown
-                            a#navbarDropdown.nav-link.dropdown-toggle(href='#' role='button' data-bs-toggle='dropdown' aria-expanded='false')
-                                | Shop
-                            ul.dropdown-menu(aria-labelledby='navbarDropdown')
-                                li
-                                    a.dropdown-item(href='#!') All Products
-                                li
-                                    hr.dropdown-divider
-                                li
-                                    a.dropdown-item(href='#!') Popular Items
-                                li
-                                    a.dropdown-item(href='#!') New Arrivals
+                            a.nav-link(href='#fleetSection')
+                                i.bi.bi-grid-fill.me-1
+                                | รายการรถยนต์
+                        li.nav-item
+                            a.nav-link(href='#!', data-bs-toggle='modal', data-bs-target='#selectedFleetModal')
+                                i.bi.bi-journal-check.me-1
+                                | ประวัติการเดินทาง & เบิกเงิน
                     form.d-flex
-                        button.btn.btn-outline-dark(type='submit')
-                            i.bi-cart-fill.me-1
-                            | Cart
-                            span.badge.bg-dark.text-white.ms-1.rounded-pill 0
+                        button.btn.btn-outline-light.position-relative(type='button', data-bs-toggle='modal', data-bs-target='#selectedFleetModal')
+                            i.bi.bi-speedometer2.me-1.text-warning
+                            | รถที่กำลังใช้งาน
+                            span#cartCountBadge.badge.bg-light.text-dark.ms-2.rounded-pill 0
 
-        // Header
-        header.bg-dark.py-5
-            .container.px-4.px-lg-5.my-5
-                .text-center.text-white
-                    h1.display-4.fw-bolder Shop in style
-                    p.lead.fw-normal.text-white-50.mb-0 With this shop hompeage template
+        // Header / Hero Section
+        header.fleet-hero.py-5
+            .container.px-4.px-lg-5.my-4
+                .row.align-items-center
+                    .col-lg-8.text-white
+                        .hero-badge.mb-3
+                            i.bi.bi-shield-check.me-2
+                            | ระบบบริหารจัดการยานพาหนะส่วนกลาง GoCorp
+                        h1.display-5.fw-bold.mb-3 ระบบเลือกใช้งานรถยนต์
+                        p.lead.fw-normal.text-white-50.mb-4
+                            | ตรวจสอบหมายเลขทะเบียนรถยนต์ รอบต่อภาษี รอบการซ่อมบำรุง บันทึกเลขไมล์ก่อนและหลังใช้รถ พร้อมคำนวณเงินชดเชยค่าเดินทางอัตโนมัติตามระยะทางจริง
+                    .col-lg-4.mt-4.mt-lg-0
+                        .row.g-3
+                            .col-6
+                                .stats-card
+                                    .stats-number 8
+                                    .stats-label รถทั้งหมดในสังกัด
+                            .col-6
+                                .stats-card
+                                    .stats-number.text-success 6
+                                    .stats-label พร้อมใช้งาน
+                            .col-6
+                                .stats-card
+                                    .stats-number.text-warning 1
+                                    .stats-label ติดภารกิจ
+                            .col-6
+                                .stats-card
+                                    .stats-number.text-danger 1
+                                    .stats-label ซ่อมบำรุง
 
-        // Section
-        section.py-5
-            .container.px-4.px-lg-5.mt-5
-                .row.gx-4.gx-lg-5.row-cols-2.row-cols-md-3.row-cols-xl-4.justify-content-center
-                    .col.mb-5
-                        .card.h-100
-                            // Product image
-                            img.card-img-top(src='https://dummyimage.com/450x300/dee2e6/6c757d.jpg', alt='...')
-                            // Product details
-                            .card-body.p-4
-                                .text-center
-                                    // Product name
-                                    h5.fw-bolder Fancy Product
-                                    // Product price
-                                    | $40.00 - $80.00
-                            // Product actions
-                            .card-footer.p-4.pt-0.border-top-0.bg-transparent
-                                .text-center
-                                    a.btn.btn-outline-dark.mt-auto(href='#') View options
-                    .col.mb-5
-                        .card.h-100
-                            // Sale badge
-                            .badge.bg-dark.text-white.position-absolute(style='top: 0.5rem; right: 0.5rem;') Sale
-                            // Product image
-                            img.card-img-top(src='https://dummyimage.com/450x300/dee2e6/6c757d.jpg', alt='...')
-                            // Product details
-                            .card-body.p-4
-                                .text-center
-                                    // Product name
-                                    h5.fw-bolder Special Item
-                                    // Product reviews
-                                    .d-flex.justify-content-center.small.text-warning.mb-2
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                    // Product price
-                                    span.text-muted.text-decoration-line-through $20.00
-                                    | $18.00
-                            // Product actions
-                            .card-footer.p-4.pt-0.border-top-0.bg-transparent
-                                .text-center
-                                    a.btn.btn-outline-dark.mt-auto(href='#') Add to cart
-                    .col.mb-5
-                        .card.h-100
-                            // Sale badge
-                            .badge.bg-dark.text-white.position-absolute(style='top: 0.5rem; right: 0.5rem;') Sale
-                            // Product image
-                            img.card-img-top(src='https://dummyimage.com/450x300/dee2e6/6c757d.jpg', alt='...')
-                            // Product details
-                            .card-body.p-4
-                                .text-center
-                                    // Product name
-                                    h5.fw-bolder Sale Item
-                                    // Product price
-                                    span.text-muted.text-decoration-line-through $50.00
-                                    | $25.00
-                            // Product actions
-                            .card-footer.p-4.pt-0.border-top-0.bg-transparent
-                                .text-center
-                                    a.btn.btn-outline-dark.mt-auto(href='#') Add to cart
-                    .col.mb-5
-                        .card.h-100
-                            // Product image
-                            img.card-img-top(src='https://dummyimage.com/450x300/dee2e6/6c757d.jpg', alt='...')
-                            // Product details
-                            .card-body.p-4
-                                .text-center
-                                    // Product name
-                                    h5.fw-bolder Popular Item
-                                    // Product reviews
-                                    .d-flex.justify-content-center.small.text-warning.mb-2
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                    // Product price
-                                    | $40.00
-                            // Product actions
-                            .card-footer.p-4.pt-0.border-top-0.bg-transparent
-                                .text-center
-                                    a.btn.btn-outline-dark.mt-auto(href='#') Add to cart
-                    .col.mb-5
-                        .card.h-100
-                            // Sale badge
-                            .badge.bg-dark.text-white.position-absolute(style='top: 0.5rem; right: 0.5rem;') Sale
-                            // Product image
-                            img.card-img-top(src='https://dummyimage.com/450x300/dee2e6/6c757d.jpg', alt='...')
-                            // Product details
-                            .card-body.p-4
-                                .text-center
-                                    // Product name
-                                    h5.fw-bolder Sale Item
-                                    // Product price
-                                    span.text-muted.text-decoration-line-through $50.00
-                                    | $25.00
-                            // Product actions
-                            .card-footer.p-4.pt-0.border-top-0.bg-transparent
-                                .text-center
-                                    a.btn.btn-outline-dark.mt-auto(href='#') Add to cart
-                    .col.mb-5
-                        .card.h-100
-                            // Product image
-                            img.card-img-top(src='https://dummyimage.com/450x300/dee2e6/6c757d.jpg', alt='...')
-                            // Product details
-                            .card-body.p-4
-                                .text-center
-                                    // Product name
-                                    h5.fw-bolder Fancy Product
-                                    // Product price
-                                    | $120.00 - $280.00
-                            // Product actions
-                            .card-footer.p-4.pt-0.border-top-0.bg-transparent
-                                .text-center
-                                    a.btn.btn-outline-dark.mt-auto(href='#') View options
-                    .col.mb-5
-                        .card.h-100
-                            // Sale badge
-                            .badge.bg-dark.text-white.position-absolute(style='top: 0.5rem; right: 0.5rem;') Sale
-                            // Product image
-                            img.card-img-top(src='https://dummyimage.com/450x300/dee2e6/6c757d.jpg', alt='...')
-                            // Product details
-                            .card-body.p-4
-                                .text-center
-                                    // Product name
-                                    h5.fw-bolder Special Item
-                                    // Product reviews
-                                    .d-flex.justify-content-center.small.text-warning.mb-2
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                    // Product price
-                                    span.text-muted.text-decoration-line-through $20.00
-                                    | $18.00
-                            // Product actions
-                            .card-footer.p-4.pt-0.border-top-0.bg-transparent
-                                .text-center
-                                    a.btn.btn-outline-dark.mt-auto(href='#') Add to cart
-                    .col.mb-5
-                        .card.h-100
-                            // Product image
-                            img.card-img-top(src='https://dummyimage.com/450x300/dee2e6/6c757d.jpg', alt='...')
-                            // Product details
-                            .card-body.p-4
-                                .text-center
-                                    // Product name
-                                    h5.fw-bolder Popular Item
-                                    // Product reviews
-                                    .d-flex.justify-content-center.small.text-warning.mb-2
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                        .bi-star-fill
-                                    // Product price
-                                    | $40.00
-                            // Product actions
-                            .card-footer.p-4.pt-0.border-top-0.bg-transparent
-                                .text-center
-                                    a.btn.btn-outline-dark.mt-auto(href='#') Add to cart
+        // Filter and Search Section
+        .container.px-4.px-lg-5
+            .filter-search-card
+                .row.g-3.align-items-center
+                    .col-lg-5
+                        .search-input-group
+                            i.bi.bi-search.search-icon
+                            input#vehicleSearchInput.form-control(type='text', placeholder='ค้นหาด้วยเลขทะเบียนรถ หรือ ยี่ห้อ/รุ่นรถ...')
+                    .col-lg-7
+                        .d-flex.flex-wrap.gap-2.justify-content-lg-end
+                            button.filter-btn.active(type='button', data-filter='all') ทั้งหมด
+                            button.filter-btn(type='button', data-filter='sedan') รถเก๋ง
+                            button.filter-btn(type='button', data-filter='van') รถตู้
+                            button.filter-btn(type='button', data-filter='suv') SUV
+                            button.filter-btn(type='button', data-filter='pickup') รถกระบะ
+                            button.filter-btn(type='button', data-filter='ev') รถยนต์ไฟฟ้า (EV)
+
+        // Main Vehicle Section
+        section#fleetSection.py-5
+            .container.px-4.px-lg-5
+                .d-flex.justify-content-between.align-items-center.mb-4
+                    div
+                        h3.fw-bold.mb-1 รายการยานพาหนะทั้งหมด
+                        p.text-muted.mb-0 แสดงเลขทะเบียนรถ รอบต่อภาษีประจำปี รอบเช็กระยะซ่อมบำรุง และระบบคำนวณค่าเดินทาง
+                    span.badge.bg-primary-subtle.text-primary.border.border-primary-subtle.px-3.py-2
+                        i.bi.bi-check2-circle.me-1
+                        | คลิก "เลือกใช้งาน" เพื่อเริ่มบันทึกการเดินทาง
+
+                // Vehicle Cards Grid
+                #vehicleGrid.row.gx-4.gx-lg-5.row-cols-1.row-cols-md-2.row-cols-xl-4.justify-content-center
+                    each car in vehicles
+                        .col.mb-5.car-item(data-id=car.id, data-category=car.category, data-plate=car.plateNumber, data-name=car.name, data-status=car.status)
+                            .card.h-100.car-card.shadow-sm
+                                if car.status === 'available'
+                                    .badge.bg-success.text-white.position-absolute.card-status-badge
+                                        i.bi.bi-check-circle-fill.me-1
+                                        | #{car.statusText}
+                                else if car.status === 'in-use'
+                                    .badge.bg-warning.text-dark.position-absolute.card-status-badge
+                                        i.bi.bi-clock-history.me-1
+                                        | #{car.statusText}
+                                else
+                                    .badge.bg-danger.text-white.position-absolute.card-status-badge
+                                        i.bi.bi-tools.me-1
+                                        | #{car.statusText}
+
+                                // ป้ายทะเบียนรถยนต์แสดงเป็นตัวหนังสือแทนรูปภาพ
+                                .car-plate-wrapper
+                                    .thai-license-plate(class=car.plateType)
+                                        .plate-bolt.plate-bolt-left
+                                        .plate-bolt.plate-bolt-right
+                                        .plate-inner-border
+                                            span.plate-dlt-seal ขส
+                                            .plate-number= car.plateNumber
+                                            .plate-province= car.province
+
+                                // รายละเอียดรถยนต์ (ดีไซน์กระชับ สวยงาม ไม่เทอะทะ)
+                                .card-body.p-3.d-flex.flex-column
+                                    // แถวที่ 1: ชื่อรุ่นรถ และ ป้ายประเภท
+                                    .d-flex.align-items-start.justify-content-between.mb-1
+                                        h6.fw-bold.car-name.mb-0.text-truncate(title=car.name)= car.name
+                                        span.badge.bg-light.text-dark.border.small.flex-shrink-0.ms-2= car.categoryName
+
+                                    // แถวที่ 2: ช่องจอด และ เลขไมล์ล่าสุด
+                                    .d-flex.align-items-center.justify-content-between.small.text-muted.mb-2
+                                        span
+                                            i.bi.bi-geo-alt-fill.text-danger.me-1
+                                            | #{car.parking}
+                                        span.fw-semibold.text-dark
+                                            i.bi.bi-speedometer2.text-primary.me-1
+                                            | #{car.currentMileage.toLocaleString()} กม.
+
+                                    // แถวที่ 3: สเปกย่อแบบ Chip เรียบหรู
+                                    .compact-specs-row.mb-2
+                                        span.spec-chip
+                                            i.bi.bi-people-fill.text-primary.me-1
+                                            | #{car.seats}
+                                        span.spec-chip
+                                            i.bi.bi-gear-fill.text-primary.me-1
+                                            | #{car.transmission}
+                                        span.spec-chip
+                                            i.bi.bi-fuel-pump-fill.text-primary.me-1
+                                            | #{car.fuel}
+
+                                    // แถวที่ 4: แสดงแจ้งเตือนภาษีหรือซ่อมบำรุงเฉพาะคันที่ใกล้ถึงกำหนด (แบบแถบกระชับ)
+                                    if car.taxAlert || car.maintAlert
+                                        .my-1
+                                            if car.taxAlert
+                                                .compact-alert-pill.alert-tax.mb-1
+                                                    i.bi.bi-exclamation-triangle-fill.me-1
+                                                    span.text-truncate ภาษีหมด: <strong>#{car.taxDue}</strong>
+                                                    span.badge.bg-danger.ms-auto= car.taxStatus.replace('ใกล้ถึงกำหนด ', '')
+                                            if car.maintAlert
+                                                .compact-alert-pill.alert-maint
+                                                    i.bi.bi-wrench-adjustable.me-1
+                                                    span.text-truncate เช็กระยะ: <strong>#{car.maintenanceDue.split(' (')[0]}</strong>
+                                                    span.badge.bg-warning.text-dark.ms-auto= car.maintenanceStatus.replace('ปกติ ', '')
+                                    else
+                                        .small.text-muted.my-1.d-flex.align-items-center
+                                            i.bi.bi-check-circle-fill.text-success.me-1
+                                            | ภาษี & เช็กระยะ: ปกติ
+
+                                // ปุ่มเลือกใช้งาน
+                                .card-footer.px-3.pb-3.pt-0.border-top-0.bg-transparent
+                                    if car.status === 'available'
+                                        button.btn.btn-primary.btn-sm.w-100.py-2.fw-semibold.rounded-3.btn-select-car(type='button', 
+                                            data-id=car.id, 
+                                            data-plate=car.plateNumber, 
+                                            data-name=car.name, 
+                                            data-province=car.province, 
+                                            data-category=car.categoryName, 
+                                            data-parking=car.parking, 
+                                            data-platetype=car.plateType,
+                                            data-mileage=car.currentMileage,
+                                            data-tax=car.taxDue,
+                                            data-maintenance=car.maintenanceDue)
+                                            i.bi.bi-car-front-fill.me-1
+                                            | เลือกใช้งานรถคันนี้
+                                    else if car.status === 'in-use'
+                                        button.btn.btn-outline-secondary.btn-sm.w-100.py-2(type='button', disabled)
+                                            i.bi.bi-clock-history.me-1
+                                            | กำลังติดภารกิจ
+                                    else
+                                        button.btn.btn-outline-danger.btn-sm.w-100.py-2(type='button', disabled)
+                                            i.bi.bi-tools.me-1
+                                            | อยู่ระหว่างซ่อมบำรุง
+
+                // Empty state when search yields no matches
+                #noResults.no-results-box
+                    i.bi.bi-search
+                    h5.fw-bold ไม่พบข้อมูลรถยนต์ที่ตรงกับเงื่อนไข
+                    p.text-muted กรุณาลองค้นหาด้วยคำอื่น หรือกดเลือก "ทั้งหมด"
+
+        // Modal 1: บันทึกข้อมูลการขอใช้รถ & เลขไมล์เริ่มต้น + ภาพถ่าย
+        #bookingModal.modal.fade(tabindex='-1', aria-labelledby='bookingModalLabel', aria-hidden='true')
+            .modal-dialog.modal-dialog-centered.modal-lg
+                .modal-content.border-0.shadow
+                    .modal-header.bg-dark.text-white
+                        h5#bookingModalLabel.modal-title.d-flex.align-items-center
+                            i.bi.bi-clipboard-check-fill.text-primary.me-2
+                            | ขั้นตอนที่ 1: บันทึกขอใช้รถยนต์ & กรอกเลขไมล์เริ่มต้น
+                        button.btn-close.btn-close-white(type='button', data-bs-dismiss='modal', aria-label='Close')
+                    form#bookingForm
+                        .modal-body.p-4
+                            // ข้อมูลรถที่เลือกและป้ายทะเบียน
+                            .row.mb-3.align-items-center
+                                .col-md-5
+                                    .modal-car-plate-preview.shadow-sm
+                                        #modalPlatePreview.thai-license-plate.plate-type-sedan
+                                            .plate-bolt.plate-bolt-left
+                                            .plate-bolt.plate-bolt-right
+                                            .plate-inner-border
+                                                span.plate-dlt-seal ขส
+                                                #modalPlateNumber.plate-number 1กข 8924
+                                                #modalPlateProvince.plate-province กรุงเทพมหานคร
+                                .col-md-7
+                                    h4#modalCarName.fw-bold.mb-1 Toyota Camry 2.5 HEV
+                                    p.text-muted.mb-2
+                                        span#modalCarCategory.badge.bg-primary-subtle.text-primary.me-2 รถเก๋ง (Sedan)
+                                        span
+                                            i.bi.bi-geo-alt-fill.text-danger.me-1
+                                            span#modalCarParking อาคาร 1 (ช่อง A-01)
+                                    .alert.alert-primary.py-2.px-3.mb-0.small
+                                        i.bi.bi-camera-fill.me-1
+                                        | ผู้ใช้งานต้องกรอกเลขไมล์เริ่มต้นตอนยังไม่ขับรถและแนบภาพถ่ายหน้าปัดไมล์
+
+                            hr
+
+                            // ข้อมูลผู้ใช้งานที่เข้าสู่ระบบ (ดึงมาจากโปรไฟล์ผู้ใช้งาน)
+                            .card.border-0.bg-light.mb-3
+                                .card-body.p-3.d-flex.align-items-center.justify-content-between
+                                    .d-flex.align-items-center
+                                        .avatar-circle.bg-primary.text-white.rounded-circle.d-flex.align-items-center.justify-content-center.me-3(style='width: 44px; height: 44px; font-size: 1.25rem;')
+                                            i.bi.bi-person-badge
+                                        div
+                                            .fw-bold.text-dark#currentProfileName นายสมชาย ใจดี
+                                            .small.text-muted
+                                                span#currentProfileDept ฝ่ายการตลาดและการขาย
+                                                span.mx-1 •
+                                                span.badge.bg-success-subtle.text-success.border ข้อมูลโปรไฟล์ผู้ใช้งาน
+                                    .text-end.small.text-muted
+                                        i.bi.bi-shield-check.text-primary.me-1
+                                        | ข้อมูลจากระบบลงทะเบียน
+
+                            // ข้อมูลกำหนดการเดินทาง
+                            .row.g-3.mb-4
+                                .col-md-8
+                                    label.form-label.fw-bold(for='bookingStartDate')
+                                        i.bi.bi-calendar-event.me-1.text-primary
+                                        | วันที่และเวลาเริ่มใช้งาน *
+                                    input#bookingStartDate.form-control(type='datetime-local', required)
+                                .col-md-4
+                                    label.form-label.fw-bold(for='passengerCount')
+                                        i.bi.bi-people.me-1.text-primary
+                                        | จำนวนผู้โดยสาร (คน)
+                                    input#passengerCount.form-control(type='number', min='1', max='15', value='2')
+
+                            // ส่วนบังคับ: กรอกเลขไมล์เริ่มต้น + ภาพถ่าย
+                            .card.border-primary.bg-light
+                                .card-body.p-3
+                                    h6.fw-bold.text-primary.mb-3
+                                        i.bi.bi-speedometer.me-2
+                                        | บันทึกเลขไมล์เริ่มต้นตอนยังไม่ขับรถ (Odometer Start) *
+                                    .row.g-3
+                                        .col-md-6
+                                            label.form-label.fw-bold(for='startMileageInput')
+                                                | เลขไมล์เริ่มต้นที่แสดงบนหน้าปัด (กิโลเมตร) *
+                                            .input-group
+                                                input#startMileageInput.form-control.form-control-lg.fw-bold(type='number', required, placeholder='เช่น 48250')
+                                                span.input-group-text.bg-white กม.
+                                            small.text-muted ตรวจสอบตัวเลขหน้าปัดจริงของรถยนต์คันนี้
+
+                                        .col-md-6
+                                            label.form-label.fw-bold
+                                                | แนบรูปถ่ายหน้าปัดไมล์เริ่มต้น *
+                                            
+                                            // กล่องเลือกไฟล์หรือถ่ายรูป
+                                            #startPhotoDropzone.photo-upload-dropzone
+                                                i.bi.bi-camera-fill.dropzone-icon
+                                                .dropzone-text คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพหน้าปัด
+                                                .dropzone-subtext รองรับไฟล์ภาพ JPEG, PNG
+                                                input#startMileagePhotoInput.position-absolute.top-0.start-0.w-100.h-100.opacity-0(type='file', accept='image/*')
+
+                                            // กล่องแสดงตัวอย่างรูปถ่าย
+                                            #startPhotoContainer.photo-preview-container.d-none
+                                                img#startPhotoPreview(src='', alt='ตัวอย่างรูปถ่ายหน้าปัดเริ่มต้น')
+                                                button#btnRemoveStartPhoto.btn-remove-photo(type='button', title='ลบรูปถ่าย')
+                                                    i.bi.bi-x-lg
+                                                span.photo-caption-badge
+                                                    i.bi.bi-check-circle-fill.text-success.me-1
+                                                    | ภาพถ่ายหน้าปัดก่อนเดินทาง
+
+                                            .mt-2.text-end
+                                                button#btnDemoStartPhoto.btn.btn-outline-primary.btn-sm.btn-demo-photo(type='button')
+                                                    i.bi.bi-image.me-1
+                                                    | ใช้ภาพตัวอย่างหน้าปัดไมล์ (Demo)
+
+                        .modal-footer.bg-light.d-flex.flex-wrap.align-items-center.justify-content-between.gap-2
+                            #bookingValidationNotice.validation-notice.is-invalid-notice
+                                i.bi.bi-exclamation-triangle-fill.me-1
+                                span กรุณากรอกข้อมูลและแนบรูปภาพหน้าปัดไมล์
+                            div.d-flex.gap-2
+                                button.btn.btn-outline-secondary(type='button', data-bs-dismiss='modal') ยกเลิก
+                                button#btnSubmitBooking.btn.btn-primary.px-4(type='submit', disabled)
+                                    i.bi.bi-play-circle-fill.me-1
+                                    | ยืนยันเริ่มใช้งานรถยนต์
+
+        // Modal 2: บันทึกเลขไมล์สิ้นสุดหลังใช้รถเสร็จ + ถ่ายรูป + คำนวณเงินค่าเดินทาง
+        #returnModal.modal.fade(tabindex='-1', aria-labelledby='returnModalLabel', aria-hidden='true')
+            .modal-dialog.modal-dialog-centered.modal-lg
+                .modal-content.border-0.shadow
+                    .modal-header.bg-success.text-white
+                        h5#returnModalLabel.modal-title.d-flex.align-items-center
+                            i.bi.bi-check-circle-fill.me-2
+                            | ขั้นตอนที่ 2: บันทึกคืนรถ & คำนวณเงินชดเชยค่าเดินทาง
+                        button.btn-close.btn-close-white(type='button', data-bs-dismiss='modal', aria-label='Close')
+                    form#returnForm
+                        .modal-body.p-4
+                            // ข้อมูลผู้ขับและรถยนต์
+                            .d-flex.justify-content-between.align-items-center.p-3.bg-light.rounded.mb-4.border
+                                div
+                                    h5.fw-bold.mb-1
+                                        span#returnModalPlate.badge.bg-dark.me-2 1กข 8924
+                                        span#returnModalCarName Toyota Camry 2.5 HEV
+                                    .text-muted.small
+                                        i.bi.bi-person-fill.me-1
+                                        | ผู้ใช้รถ: <strong id="returnModalDriver">นายสมชาย ใจดี</strong>
+                                div.text-end
+                                    .small.text-muted อัตราค่าชดเชย
+                                    .rate-input-group
+                                        input#ratePerKmInput.form-control.form-control-sm(type='number', step='0.5', min='1', value='5.00')
+                                        span.small.ms-1.fw-bold บาท / กม.
+
+                            .row.g-4
+                                // คอลัมน์ซ้าย: ข้อมูลตอนเริ่มต้นที่บันทึกไว้
+                                .col-md-6
+                                    .card.h-100.border.bg-light
+                                        .card-body.p-3
+                                            .badge.bg-secondary.mb-2 ตอนยังไม่ขับ (เริ่มต้น)
+                                            .d-flex.justify-content-between.align-items-center.mb-2.pb-2.border-bottom
+                                                span.text-muted.small วันที่-เวลาเริ่ม:
+                                                span#returnStartDateDisplay.fw-semibold.text-dark.small -
+                                            .d-flex.justify-content-between.align-items-baseline.mb-2
+                                                span.text-muted เลขไมล์เริ่มต้น:
+                                                h4#returnStartMileageDisplay.fw-bold.text-dark.mb-0 48,250 กม.
+                                            
+                                            // แสดงภาพถ่ายเริ่มต้น
+                                            .photo-preview-container
+                                                img#returnStartPhotoPreview(src='', alt='ภาพถ่ายไมล์เริ่มต้น')
+                                                span.photo-caption-badge ภาพถ่ายก่อนเดินทาง
+
+                                // คอลัมน์ขวา: กรอกวันที่สิ้นสุด + เลขไมล์ล่าสุดหลังใช้รถเสร็จ + แนบภาพถ่าย
+                                .col-md-6
+                                    .card.h-100.border-primary
+                                        .card-body.p-3
+                                            .badge.bg-primary.mb-2 หลังจากใช้รถเสร็จ (สิ้นสุด)
+                                            .mb-3
+                                                label.form-label.fw-bold(for='returnEndDateInput')
+                                                    i.bi.bi-calendar-check.me-1.text-primary
+                                                    | วันที่และเวลาสิ้นสุดการใช้งาน *
+                                                input#returnEndDateInput.form-control(type='datetime-local', required)
+                                            label.form-label.fw-bold(for='endMileageInput')
+                                                | กรอกเลขไมล์ที่แสดงล่าสุด (กม.) *
+                                            .input-group.mb-2
+                                                input#endMileageInput.form-control.form-control-lg.fw-bold.text-primary(type='number', required, placeholder='เช่น 48315')
+                                                span.input-group-text.bg-white กม.
+
+                                            // กล่องอัปโหลดภาพถ่ายสิ้นสุด
+                                            #endPhotoDropzone.photo-upload-dropzone.mt-2
+                                                i.bi.bi-camera-fill.dropzone-icon
+                                                .dropzone-text คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพไมล์ล่าสุด
+                                                .dropzone-subtext ถ่ายภาพหน้าปัดเมื่อใช้รถเสร็จ
+                                                input#endMileagePhotoInput.position-absolute.top-0.start-0.w-100.h-100.opacity-0(type='file', accept='image/*')
+
+                                            // กล่องแสดงตัวอย่างรูปถ่ายสิ้นสุด
+                                            #endPhotoContainer.photo-preview-container.d-none.mt-2
+                                                img#endPhotoPreview(src='', alt='ตัวอย่างรูปถ่ายหน้าปัดสิ้นสุด')
+                                                button#btnRemoveEndPhoto.btn-remove-photo(type='button', title='ลบรูปถ่าย')
+                                                    i.bi.bi-x-lg
+                                                span.photo-caption-badge
+                                                    i.bi.bi-check-circle-fill.text-success.me-1
+                                                    | ภาพถ่ายหน้าปัดหลังใช้เสร็จ
+
+                                            .mt-2.text-end
+                                                button#btnDemoEndPhoto.btn.btn-outline-primary.btn-sm.btn-demo-photo(type='button')
+                                                    i.bi.bi-image.me-1
+                                                    | ใช้ภาพตัวอย่างหน้าปัดไมล์ (Demo)
+
+                            // กล่องแสดงผลการคำนวณระยะทางและเงินที่ได้รับแบบ Real-Time
+                            .calc-result-box.mt-4
+                                .calc-title
+                                    i.bi.bi-calculator.me-2
+                                    | ผลการคำนวณระยะทางและเงินชดเชยที่ได้รับ (Live Calculation)
+                                .row.g-3.mb-3
+                                    .col-6
+                                        .calc-metric
+                                            .metric-label ระยะทางที่เดินทางรวม
+                                            .metric-value#calcDistanceDisplay 65 กม.
+                                    .col-6
+                                        .calc-metric
+                                            .metric-label อัตราเงินชดเชยต่อกิโลเมตร
+                                            .metric-value#calcRateDisplay 5.00 บ./กม.
+                                
+                                .calc-total-card
+                                    div
+                                        .total-label เงินชดเชยค่าเดินทางที่ได้รับสุทธิ
+                                        .total-formula#calcFormulaDisplay (ระยะทาง 65 กม. × 5 บาท/กม.)
+                                    .total-amount#calcTotalDisplay ฿ 325.00 บาท
+
+                        .modal-footer.bg-light.d-flex.flex-wrap.align-items-center.justify-content-between.gap-2
+                            #returnValidationNotice.validation-notice.is-invalid-notice
+                                i.bi.bi-exclamation-triangle-fill.me-1
+                                span กรุณากรอกข้อมูลและแนบรูปภาพหน้าปัดไมล์
+                            div.d-flex.gap-2
+                                button.btn.btn-outline-secondary(type='button', data-bs-dismiss='modal') ปิด
+                                button#btnSubmitReturn.btn.btn-success.px-4(type='submit', disabled)
+                                    i.bi.bi-check2-all.me-1
+                                    | ยืนยันการคืนรถและพิมพ์ใบเบิกเงิน
+
+        // Modal 3: ใบสรุปการขอรับเงินชดเชยค่าเดินทาง (Official Reimbursement Slip)
+        #receiptModal.modal.fade(tabindex='-1', aria-labelledby='receiptModalLabel', aria-hidden='true')
+            .modal-dialog.modal-dialog-centered.modal-lg
+                .modal-content.border-0.shadow
+                    .modal-header.bg-dark.text-white
+                        h5#receiptModalLabel.modal-title.d-flex.align-items-center
+                            i.bi.bi-receipt.text-primary.me-2
+                            | ใบสรุปการใช้งานรถยนต์และเบิกจ่ายเงินค่าเดินทาง
+                        button.btn-close.btn-close-white(type='button', data-bs-dismiss='modal', aria-label='Close')
+                    .modal-body.p-4
+                        .receipt-wrapper
+                            .receipt-header.d-flex.justify-content-between.align-items-center
+                                div
+                                    h4.fw-bold.text-dark.mb-1 GoCorp Fleet Expense Claim
+                                    p.text-muted.small.mb-0 ใบสรุปบันทึกการใช้ยานพาหนะและขอรับเงินชดเชยค่าน้ำมัน/ค่าเดินทาง
+                                div.text-end
+                                    .badge.bg-success.fs-6.mb-1 บันทึกสำเร็จ
+                                    .small.text-muted รหัสเอกสาร: <strong id="receiptTripId">TRIP-123456</strong>
+                                    .small.text-muted วันที่คืนรถ: <span id="receiptCompletedAt">-</span>
+
+                            .row.mb-3
+                                .col-md-6
+                                    .small.text-muted ยานพาหนะที่ใช้งาน
+                                    h5.fw-bold.mb-1
+                                        span#receiptPlate.badge.bg-dark.me-2 1กข 8924
+                                        span#receiptCarName Toyota Camry 2.5 HEV
+                                    .small.text-muted.mt-1
+                                        i.bi.bi-calendar-range.me-1.text-primary
+                                        | ช่วงเวลาใช้งาน: <span id="receiptTripPeriod" class="fw-semibold text-dark">-</span>
+                                .col-md-6
+                                    .small.text-muted ข้อมูลผู้ขอใช้รถ
+                                    h6.fw-bold.mb-0
+                                        span#receiptDriver สมชาย ใจดี
+                                        span.text-muted.fw-normal.ms-1 (ฝ่าย: <span id="receiptDept">การตลาด</span>)
+                                    .small.text-muted ภารกิจ: <span id="receiptPurpose">-</span>
+
+                            hr
+
+                            // ภาพถ่ายเปรียบเทียบหน้าปัดไมล์ก่อนและหลังใช้
+                            h6.fw-bold.text-dark.mb-3
+                                i.bi.bi-images.me-2.text-primary
+                                | หลักฐานภาพถ่ายหน้าปัดเลขไมล์ (ก่อนใช้ vs หลังใช้)
+                            .row.g-3.mb-4
+                                .col-6
+                                    .photo-compare-box
+                                        img#receiptStartPhoto(src='', alt='ภาพไมล์เริ่มต้น')
+                                        .photo-compare-label
+                                            | ไมล์เริ่มต้น: <span id="receiptStartMileage" class="text-primary fw-bold">48,250 กม.</span>
+                                .col-6
+                                    .photo-compare-box
+                                        img#receiptEndPhoto(src='', alt='ภาพไมล์สิ้นสุด')
+                                        .photo-compare-label
+                                            | ไมล์สิ้นสุด: <span id="receiptEndMileage" class="text-success fw-bold">48,315 กม.</span>
+
+                            // สรุปยอดเงิน
+                            .table-responsive
+                                table.table.table-bordered.text-center.align-middle
+                                    thead.table-light
+                                        tr
+                                            th ระยะทางรวมที่เดินทาง
+                                            th อัตราเงินชดเชย
+                                            th รวมยอดเงินที่ได้รับสุทธิ
+                                    tbody
+                                        tr.fs-5
+                                            td.fw-bold#receiptDistance 65 กม.
+                                            td.fw-bold#receiptRate 5.00 บาท/กม.
+                                            td.fw-bold.text-success.fs-4#receiptTotalAmount ฿ 325.00 บาท
+
+                    .modal-footer.bg-light.justify-content-between
+                        button.btn.btn-outline-secondary(type='button', data-bs-dismiss='modal') ปิด
+                        button#btnPrintReceipt.btn.btn-primary.px-4(type='button')
+                            i.bi.bi-printer-fill.me-1
+                            | พิมพ์ใบสรุปเบิกเงิน
+
+        // Modal 4: ประวัติการใช้งาน & คืนรถ
+        #selectedFleetModal.modal.fade(tabindex='-1', aria-labelledby='selectedFleetModalLabel', aria-hidden='true')
+            .modal-dialog.modal-dialog-centered.modal-lg
+                .modal-content.border-0.shadow
+                    .modal-header.bg-dark.text-white
+                        h5#selectedFleetModalLabel.modal-title.d-flex.align-items-center
+                            i.bi.bi-journal-check.text-warning.me-2
+                            | รายการรถที่กำลังใช้งาน & ประวัติการเบิกเงิน
+                        button.btn-close.btn-close-white(type='button', data-bs-dismiss='modal', aria-label='Close')
+                    .modal-body.p-4
+                        #emptyHistoryMsg.text-center.py-4
+                            i.bi.bi-car-front.display-4.text-muted.mb-3
+                            h5.fw-bold ยังไม่มีรายการใช้งานในรอบนี้
+                            p.text-muted กด "เลือกใช้งานรถคันนี้" ที่หน้าแรกเพื่อเริ่มบันทึกเลขไมล์และเดินทาง
+
+                        h6.fw-bold.text-primary.mb-2 รถที่กำลังใช้งานอยู่ (Active Trips)
+                        #activeTripsList.mb-4
+
+                        hr
+
+                        h6.fw-bold.text-success.mb-2 ประวัติการคืนรถและรับเงินค่าเดินทางแล้ว (Completed Trips)
+                        #completedTripsList
+
+                    .modal-footer.bg-light
+                        button.btn.btn-secondary(type='button', data-bs-dismiss='modal') ปิดหน้าต่าง
+
+        // Toast Notification
+        .toast-container.position-fixed.bottom-0.end-0.p-3
+            #bookingToast.toast.align-items-center.text-white.bg-success.border-0(role='alert', aria-live='assertive', aria-atomic='true')
+                .d-flex
+                    .toast-body
+                        i.bi.bi-check-circle-fill.fs-5.me-2
+                        span#toastMessage บันทึกข้อมูลสำเร็จ
+                    button.btn-close.btn-close-white.me-2.m-auto(type='button', data-bs-dismiss='toast', aria-label='Close')
 
         // Footer
-        footer.py-5.bg-dark
+        footer.py-5.bg-dark.text-white-50
             .container
-                p.m-0.text-center.text-white Copyright &copy; Your Website 2023
+                .row.align-items-center
+                    .col-md-6.text-center.text-md-start.mb-3.mb-md-0
+                        h5.text-white.fw-bold.mb-1 GoCorp Fleet Management
+                        p.small.mb-0 ระบบจองและจัดสรรยานพาหนะส่วนกลางเพื่อประสิทธิภาพการปฏิบัติงาน
+                    .col-md-6.text-center.text-md-end
+                        p.small.mb-1 ฝ่ายยานพาหนะ โทร: 02-xxx-xxxx ต่อ 101-104
+                        p.m-0 Copyright &copy; GoCorp 2026. สงวนลิขสิทธิ์
 
         // Bootstrap core JS
         script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js')

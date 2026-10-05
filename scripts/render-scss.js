@@ -7,7 +7,7 @@ const postcss = require('postcss')
 const sass = require('sass');
 const sh = require('shelljs');
 
-const stylesPath = '../src/scss/styles.scss';
+const stylesPath = upath.resolve(upath.dirname(__filename), '../src/scss/styles.scss');
 const destPath = upath.resolve(upath.dirname(__filename), '../dist/css/styles.css');
 
 module.exports = function renderSCSS() {
@@ -24,13 +24,12 @@ module.exports = function renderSCSS() {
         sh.mkdir('-p', destPathDirname);
     }
 
-    postcss([ autoprefixer ]).process(results.css, {from: 'styles.css', to: 'styles.css'}).then(result => {
+    return postcss([ autoprefixer ]).process(results.css, {from: 'styles.css', to: 'styles.css'}).then(result => {
         result.warnings().forEach(warn => {
             console.warn(warn.toString())
         })
         fs.writeFileSync(destPath, result.css.toString());
-    })
-
+    });
 };
 
 const entryPoint = `/*!
