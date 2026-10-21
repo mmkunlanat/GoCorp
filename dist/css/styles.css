@@ -11281,6 +11281,109 @@ body {
   color: #94a3b8;
 }
 
+.live-camera-dropzone {
+  border-color: #3b82f6 !important;
+  background: #f8fafc;
+}
+.live-camera-dropzone .camera-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50rem;
+}
+
+.pulse-dot-red {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  animation: livePulse 1.4s infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+.camera-guide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+}
+.camera-guide-overlay .guide-frame {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 60%;
+  border: 2px dashed rgba(56, 189, 248, 0.7);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.camera-guide-overlay .guide-frame .guide-text {
+  background: rgba(15, 23, 42, 0.85);
+  color: #38bdf8;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+}
+.camera-guide-overlay .live-timestamp-hud {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.camera-guide-overlay .live-timestamp-hud .live-clock {
+  background: rgba(15, 23, 42, 0.85);
+  color: #4ade80;
+  font-family: "Courier New", monospace;
+  font-size: 0.82rem;
+  font-weight: bold;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  border: 1px solid rgba(74, 222, 128, 0.35);
+}
+.camera-guide-overlay .live-timestamp-hud .live-badge {
+  background: rgba(239, 68, 68, 0.9);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
 .photo-preview-container {
   position: relative;
   border-radius: 10px;
@@ -11337,6 +11440,61 @@ body {
   font-size: 0.78rem;
   padding: 0.25rem 0.65rem;
   border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.sample-guide-box {
+  background: #fffbeb;
+  border: 1px solid #fde047;
+  border-radius: 10px;
+  padding: 0.85rem;
+  position: relative;
+  animation: fadeIn 0.25s ease-in-out;
+}
+.sample-guide-box .btn-close-sm {
+  font-size: 0.65rem;
+  padding: 0.25rem;
+}
+.sample-guide-box .sample-image-wrapper {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px dashed #f59e0b;
+  background: #0f172a;
+  max-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sample-guide-box .sample-image-wrapper img {
+  max-width: 100%;
+  max-height: 180px;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+.sample-guide-box .sample-image-wrapper .sample-watermark-ribbon {
+  position: absolute;
+  top: 14px;
+  right: -32px;
+  transform: rotate(45deg);
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 2.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 5;
+}
+.sample-guide-box .sample-notice-banner {
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid #ef4444;
+  font-size: 0.78rem;
+  color: #7f1d1d;
 }
 
 .calc-result-box {
