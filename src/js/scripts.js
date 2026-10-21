@@ -62,9 +62,14 @@ document.addEventListener('DOMContentLoaded', function () {
             <rect x="80" y="105" width="240" height="60" rx="8" fill="#020617" stroke="#38bdf8" stroke-width="2"/>
             <text x="200" y="146" fill="#22d3ee" font-size="28" font-family="'Courier New', monospace" font-weight="bold" text-anchor="middle" letter-spacing="3">${Number(mileageKm).toLocaleString()} km</text>
             
+            <!-- Watermark: Sample Only - Cannot be used for submission -->
+            <rect x="25" y="88" width="350" height="92" rx="8" fill="rgba(239, 68, 68, 0.15)" stroke="rgba(239, 68, 68, 0.6)" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="200" y="103" fill="#f87171" font-size="11" font-family="'Prompt', sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="0.5">⚠️ ภาพตัวอย่างเพื่ออ้างอิงเท่านั้น (SAMPLE ONLY)</text>
+            <text x="200" y="174" fill="#ef4444" font-size="11" font-family="'Prompt', sans-serif" font-weight="bold" text-anchor="middle">❌ ไม่สามารถนำมาแนบส่งในระบบได้</text>
+            
             <!-- Bottom Specs -->
-            <text x="120" y="195" fill="#4ade80" font-size="12" font-family="'Prompt', sans-serif">● READY</text>
-            <text x="280" y="195" fill="#facc15" font-size="12" font-family="'Prompt', sans-serif">FUEL 85%</text>
+            <text x="120" y="198" fill="#4ade80" font-size="12" font-family="'Prompt', sans-serif">● READY</text>
+            <text x="280" y="198" fill="#facc15" font-size="12" font-family="'Prompt', sans-serif">FUEL 85%</text>
             <text x="200" y="222" fill="#64748b" font-size="11" font-family="'Prompt', sans-serif" text-anchor="middle">${new Date().toLocaleString('th-TH')}</text>
         </svg>
         `;
@@ -95,10 +100,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const startDateInput = document.getElementById('bookingStartDate');
         const startMileageInput = document.getElementById('startMileageInput');
         const passengerCountInput = document.getElementById('passengerCount');
+        const destinationInput = document.getElementById('bookingDestination');
 
         const startDateVal = startDateInput ? startDateInput.value.trim() : '';
         const mileageVal = startMileageInput ? parseInt(startMileageInput.value, 10) : 0;
         const passengerVal = passengerCountInput ? parseInt(passengerCountInput.value, 10) : 1;
+        const destinationVal = destinationInput ? destinationInput.value.trim() : '';
         const minMileage = (currentSelectingVehicle && currentSelectingVehicle.currentMileage) ? currentSelectingVehicle.currentMileage : 0;
 
         let missingParts = [];
@@ -108,6 +115,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (startDateInput) startDateInput.classList.add('is-invalid');
         } else {
             if (startDateInput) startDateInput.classList.remove('is-invalid');
+        }
+
+        if (!destinationVal) {
+            missingParts.push('ระบุสถานที่ไป');
+            if (destinationInput) destinationInput.classList.add('is-invalid');
+        } else {
+            if (destinationInput) destinationInput.classList.remove('is-invalid');
         }
 
         if (!mileageVal || isNaN(mileageVal)) {
@@ -128,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!startPhotoDataUrl) {
-            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์');
+            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์จริง (รูปตัวอย่างไม่สามารถใช้ส่งได้)');
         }
 
         const isValid = missingParts.length === 0;
@@ -194,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!endPhotoDataUrl) {
-            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์หลังใช้');
+            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์จริงหลังใช้ (รูปตัวอย่างไม่สามารถใช้ส่งได้)');
         }
 
         const isValid = missingParts.length === 0;
@@ -303,8 +317,18 @@ document.addEventListener('DOMContentLoaded', function () {
             startMileageInput.setAttribute('min', currentMileage);
         }
 
-        // Reset photo preview
+        // Reset photo preview and destination input
         resetStartPhoto();
+        const startSampleBox = document.getElementById('startSampleGuideBox');
+        const startBtnText = document.getElementById('btnDemoStartPhotoText');
+        if (startSampleBox) startSampleBox.classList.add('d-none');
+        if (startBtnText) startBtnText.textContent = 'ดูตัวอย่าง';
+
+        const destinationInput = document.getElementById('bookingDestination');
+        if (destinationInput) {
+            destinationInput.value = '';
+            destinationInput.classList.remove('is-invalid');
+        }
 
         // Set default start date-time
         const now = new Date();
@@ -361,11 +385,33 @@ document.addEventListener('DOMContentLoaded', function () {
         btnRemoveStartPhoto.addEventListener('click', resetStartPhoto);
     }
 
+    const startSampleGuideBox = document.getElementById('startSampleGuideBox');
+    const startSamplePreviewImg = document.getElementById('startSamplePreviewImg');
+    const btnDemoStartPhotoText = document.getElementById('btnDemoStartPhotoText');
+    const btnCloseStartSample = document.getElementById('btnCloseStartSample');
+
+    function toggleStartSampleGuide() {
+        if (!startSampleGuideBox) return;
+        const mileageVal = document.getElementById('startMileageInput').value || '48250';
+        const demoUrl = generateOdometerSvg(mileageVal, 'ตัวอย่างหน้าปัดไมล์ก่อนขับ (SAMPLE)');
+        if (startSampleGuideBox.classList.contains('d-none')) {
+            if (startSamplePreviewImg) startSamplePreviewImg.src = demoUrl;
+            startSampleGuideBox.classList.remove('d-none');
+            if (btnDemoStartPhotoText) btnDemoStartPhotoText.textContent = 'ซ่อนตัวอย่าง';
+        } else {
+            startSampleGuideBox.classList.add('d-none');
+            if (btnDemoStartPhotoText) btnDemoStartPhotoText.textContent = 'ดูตัวอย่าง';
+        }
+    }
+
     if (btnDemoStartPhoto) {
-        btnDemoStartPhoto.addEventListener('click', function () {
-            const mileageVal = document.getElementById('startMileageInput').value || '48250';
-            const demoUrl = generateOdometerSvg(mileageVal, 'ไมล์เริ่มต้นก่อนขับ');
-            setStartPhoto(demoUrl);
+        btnDemoStartPhoto.addEventListener('click', toggleStartSampleGuide);
+    }
+
+    if (btnCloseStartSample) {
+        btnCloseStartSample.addEventListener('click', function () {
+            if (startSampleGuideBox) startSampleGuideBox.classList.add('d-none');
+            if (btnDemoStartPhotoText) btnDemoStartPhotoText.textContent = 'ดูตัวอย่าง';
         });
     }
 
@@ -390,6 +436,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const requesterName = currentUserProfile.name;
             const department = currentUserProfile.department;
             const purpose = currentUserProfile.purpose;
+            const destinationInput = document.getElementById('bookingDestination');
+            const destination = destinationInput ? destinationInput.value.trim() : 'เดินทางปฏิบัติงาน';
             const startDate = document.getElementById('bookingStartDate').value;
             const passengers = document.getElementById('passengerCount').value;
             const startMileage = parseInt(document.getElementById('startMileageInput').value, 10);
@@ -402,6 +450,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 requesterName,
                 department,
                 purpose,
+                destination,
                 startDate,
                 endDate: null,
                 passengers,
@@ -467,10 +516,14 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('returnStartMileageDisplay').textContent = booking.startMileage.toLocaleString() + ' กม.';
         document.getElementById('returnStartPhotoPreview').src = booking.startPhoto;
 
-        // Display start date-time
+        // Display start date-time & destination
         const returnStartDateDisplay = document.getElementById('returnStartDateDisplay');
         if (returnStartDateDisplay) {
             returnStartDateDisplay.textContent = formatDateTimeDisplay(booking.startDate);
+        }
+        const returnDestinationDisplay = document.getElementById('returnDestinationDisplay');
+        if (returnDestinationDisplay) {
+            returnDestinationDisplay.textContent = booking.destination || 'เดินทางปฏิบัติงาน';
         }
 
         // Pre-fill return end date-time to right now
@@ -491,8 +544,12 @@ document.addEventListener('DOMContentLoaded', function () {
         endInput.value = suggestedEndMileage;
         endInput.setAttribute('min', booking.startMileage);
 
-        // Reset end photo
+        // Reset end photo & sample guide box
         resetEndPhoto();
+        const endSampleBox = document.getElementById('endSampleGuideBox');
+        const endBtnText = document.getElementById('btnDemoEndPhotoText');
+        if (endSampleBox) endSampleBox.classList.add('d-none');
+        if (endBtnText) endBtnText.textContent = 'ดูตัวอย่าง';
 
         // Calculate initially
         recalculateSettlement(booking.startMileage);
@@ -558,11 +615,33 @@ document.addEventListener('DOMContentLoaded', function () {
         btnRemoveEndPhoto.addEventListener('click', resetEndPhoto);
     }
 
+    const endSampleGuideBox = document.getElementById('endSampleGuideBox');
+    const endSamplePreviewImg = document.getElementById('endSamplePreviewImg');
+    const btnDemoEndPhotoText = document.getElementById('btnDemoEndPhotoText');
+    const btnCloseEndSample = document.getElementById('btnCloseEndSample');
+
+    function toggleEndSampleGuide() {
+        if (!endSampleGuideBox) return;
+        const endMileageVal = document.getElementById('endMileageInput').value || '48315';
+        const demoUrl = generateOdometerSvg(endMileageVal, 'ตัวอย่างหน้าปัดไมล์สิ้นสุด (SAMPLE)');
+        if (endSampleGuideBox.classList.contains('d-none')) {
+            if (endSamplePreviewImg) endSamplePreviewImg.src = demoUrl;
+            endSampleGuideBox.classList.remove('d-none');
+            if (btnDemoEndPhotoText) btnDemoEndPhotoText.textContent = 'ซ่อนตัวอย่าง';
+        } else {
+            endSampleGuideBox.classList.add('d-none');
+            if (btnDemoEndPhotoText) btnDemoEndPhotoText.textContent = 'ดูตัวอย่าง';
+        }
+    }
+
     if (btnDemoEndPhoto) {
-        btnDemoEndPhoto.addEventListener('click', function () {
-            const endMileageVal = document.getElementById('endMileageInput').value || '48315';
-            const demoUrl = generateOdometerSvg(endMileageVal, 'ไมล์สิ้นสุดหลังใช้รถ');
-            setEndPhoto(demoUrl);
+        btnDemoEndPhoto.addEventListener('click', toggleEndSampleGuide);
+    }
+
+    if (btnCloseEndSample) {
+        btnCloseEndSample.addEventListener('click', function () {
+            if (endSampleGuideBox) endSampleGuideBox.classList.add('d-none');
+            if (btnDemoEndPhotoText) btnDemoEndPhotoText.textContent = 'ดูตัวอย่าง';
         });
     }
 
@@ -612,6 +691,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const startMileageInputEl = document.getElementById('startMileageInput');
     const bookingStartDateEl = document.getElementById('bookingStartDate');
     const passengerCountEl = document.getElementById('passengerCount');
+    const bookingDestinationEl = document.getElementById('bookingDestination');
     if (startMileageInputEl) {
         startMileageInputEl.addEventListener('input', validateBookingForm);
         startMileageInputEl.addEventListener('change', validateBookingForm);
@@ -623,6 +703,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (passengerCountEl) {
         passengerCountEl.addEventListener('input', validateBookingForm);
         passengerCountEl.addEventListener('change', validateBookingForm);
+    }
+    if (bookingDestinationEl) {
+        bookingDestinationEl.addEventListener('input', validateBookingForm);
+        bookingDestinationEl.addEventListener('change', validateBookingForm);
     }
 
     // Input change listeners for return modal real-time validation
@@ -726,6 +810,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('receiptDriver').textContent = record.requesterName;
         document.getElementById('receiptDept').textContent = record.department;
         document.getElementById('receiptPurpose').textContent = record.purpose;
+        const receiptDestEl = document.getElementById('receiptDestination');
+        if (receiptDestEl) {
+            receiptDestEl.textContent = record.destination || 'เดินทางปฏิบัติงาน';
+        }
         document.getElementById('receiptCompletedAt').textContent = record.completedAt;
 
         const periodEl = document.getElementById('receiptTripPeriod');
@@ -791,6 +879,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                         <i class="bi bi-person me-1"></i>ผู้ใช้: ${item.requesterName} (${item.department})
                                     </div>
                                     <div class="small text-muted">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>สถานที่ไป: <strong class="text-dark">${item.destination || '-'}</strong>
+                                    </div>
+                                    <div class="small text-muted">
                                         <i class="bi bi-clock me-1"></i>เริ่มใช้งาน: <strong>${formatDateTimeDisplay(item.startDate)}</strong>
                                     </div>
                                     <div class="small text-muted">
@@ -820,6 +911,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <strong class="text-dark">${item.plate} - ${item.name}</strong>
                                     <div class="small text-muted mt-1">
                                         ผู้ใช้: ${item.requesterName} • คืนเมื่อ: <strong>${item.completedAt}</strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>สถานที่ไป: <strong>${item.destination || '-'}</strong>
                                     </div>
                                     <div class="small text-muted">
                                         ระยะทาง: <strong>${item.distance} กม.</strong> (${item.ratePerKm} บ./กม.)

@@ -485,6 +485,26 @@ html(lang='th')
                                         i.bi.bi-people.me-1.text-primary
                                         | จำนวนผู้โดยสาร (คน)
                                     input#passengerCount.form-control(type='number', min='1', max='15', value='2')
+                                .col-12
+                                    label.form-label.fw-bold(for='bookingDestination')
+                                        i.bi.bi-geo-alt-fill.me-1.text-danger
+                                        | ไปที่ไหน (สถานที่ไป / จุดหมายปลายทาง) *
+                                    .input-group
+                                        span.input-group-text.bg-white
+                                            i.bi.bi-pin-map-fill.text-danger
+                                        input#bookingDestination.form-control(type='text', required, placeholder='ระบุสถานที่ไป เช่น ศูนย์ราชการแจ้งวัฒนะ, อาคาร SCG บางซื่อ, หรือพบลูกค้า', list='destinationList')
+                                        datalist#destinationList
+                                            option(value='ศูนย์ราชการเฉลิมพระเกียรติฯ แจ้งวัฒนะ')
+                                            option(value='อาคารเอนเนอร์ยี่คอมเพล็กซ์ (Energy Complex)')
+                                            option(value='สำนักงานใหญ่ SCG บางซื่อ')
+                                            option(value='ศูนย์ประชุมแห่งชาติสิริกิติ์ (QSNCC)')
+                                            option(value='ไบเทค บางนา (BITEC)')
+                                            option(value='นิคมอุตสาหกรรมบางปู สมุทรปราการ')
+                                            option(value='ท่าอากาศยานสุวรรณภูมิ')
+                                            option(value='ท่าอากาศยานดอนเมือง')
+                                            option(value='พบลูกค้าภายนอก (กทม. และปริมณฑล)')
+                                            option(value='ติดต่อหน่วยงานราชการ')
+                                    small.text-muted ระบุสถานที่ปลายทางหรือภารกิจที่ต้องเดินทางไปปฏิบัติงาน
 
                             // ส่วนบังคับ: กรอกเลขไมล์เริ่มต้น + ภาพถ่าย
                             .card.border-primary.bg-light
@@ -505,26 +525,44 @@ html(lang='th')
                                             label.form-label.fw-bold
                                                 | แนบรูปถ่ายหน้าปัดไมล์เริ่มต้น *
                                             
-                                            // กล่องเลือกไฟล์หรือถ่ายรูป
+                                            // กล่องเลือกไฟล์หรือถ่ายรูป (รูปจริงเท่านั้น)
                                             #startPhotoDropzone.photo-upload-dropzone
                                                 i.bi.bi-camera-fill.dropzone-icon
-                                                .dropzone-text คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพหน้าปัด
+                                                .dropzone-text คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพหน้าปัดจริง
                                                 .dropzone-subtext รองรับไฟล์ภาพ JPEG, PNG
                                                 input#startMileagePhotoInput.position-absolute.top-0.start-0.w-100.h-100.opacity-0(type='file', accept='image/*')
 
-                                            // กล่องแสดงตัวอย่างรูปถ่าย
+                                            // กล่องแสดงตัวอย่างรูปถ่ายจริงที่อัปโหลด
                                             #startPhotoContainer.photo-preview-container.d-none
                                                 img#startPhotoPreview(src='', alt='ตัวอย่างรูปถ่ายหน้าปัดเริ่มต้น')
-                                                button#btnRemoveStartPhoto.btn-remove-photo(type='button', title='ลบรูปถ่าย')
+                                                button#btnRemoveStartPhoto.btn-remove-photo(type='button', title='ลบรูปถ่ายเพื่ออัปโหลดใหม่')
                                                     i.bi.bi-x-lg
                                                 span.photo-caption-badge
                                                     i.bi.bi-check-circle-fill.text-success.me-1
-                                                    | ภาพถ่ายหน้าปัดก่อนเดินทาง
+                                                    | ภาพถ่ายหน้าปัดจริงก่อนเดินทาง
 
-                                            .mt-2.text-end
+                                            .mt-2.d-flex.justify-content-between.align-items-center
+                                                small.text-muted
+                                                    i.bi.bi-shield-lock.me-1
+                                                    | แนบเฉพาะรูปจริง
                                                 button#btnDemoStartPhoto.btn.btn-outline-primary.btn-sm.btn-demo-photo(type='button')
-                                                    i.bi.bi-image.me-1
-                                                    | ใช้ภาพตัวอย่างหน้าปัดไมล์ (Demo)
+                                                    i.bi.bi-eye.me-1
+                                                    span#btnDemoStartPhotoText ดูตัวอย่าง
+
+                                            // กล่องแสดงตัวอย่างรูปหน้าปัดไมล์ (สำหรับดูเป็นตัวอย่างเท่านั้น - ไม่สามารถนำมาแนบส่งได้)
+                                            #startSampleGuideBox.sample-guide-box.d-none.mt-2
+                                                .d-flex.justify-content-between.align-items-center.mb-2
+                                                    .fw-bold.text-dark.small
+                                                        i.bi.bi-info-circle-fill.text-warning.me-1
+                                                        | ตัวอย่างภาพถ่ายหน้าปัดไมล์ที่ถูกต้อง (สำหรับอ้างอิง)
+                                                    button#btnCloseStartSample.btn-close.btn-close-sm(type='button', aria-label='Close', title='ปิดตัวอย่าง')
+                                                .sample-image-wrapper.mb-2
+                                                    img#startSamplePreviewImg(src='', alt='ตัวอย่างหน้าปัดไมล์')
+                                                    .sample-watermark-ribbon ห้ามใช้ส่งจริง
+                                                .sample-notice-banner
+                                                    i.bi.bi-exclamation-octagon-fill.text-danger.me-1
+                                                    strong รูปตัวอย่างไม่สามารถนำมาแนบส่งได้
+                                                    div.small.text-muted.mt-1 ต้องถ่ายหรืออัปโหลดภาพหน้าปัดจริงของรถยนต์คันนี้ที่กล่องด้านบนเพื่อยืนยันการใช้รถ
 
                         .modal-footer.bg-light.d-flex.flex-wrap.align-items-center.justify-content-between.gap-2
                             #bookingValidationNotice.validation-notice.is-invalid-notice
@@ -571,6 +609,9 @@ html(lang='th')
                                             .d-flex.justify-content-between.align-items-center.mb-2.pb-2.border-bottom
                                                 span.text-muted.small วันที่-เวลาเริ่ม:
                                                 span#returnStartDateDisplay.fw-semibold.text-dark.small -
+                                            .d-flex.justify-content-between.align-items-center.mb-2.pb-2.border-bottom
+                                                span.text-muted.small สถานที่ไป:
+                                                span#returnDestinationDisplay.fw-semibold.text-danger.small -
                                             .d-flex.justify-content-between.align-items-baseline.mb-2
                                                 span.text-muted เลขไมล์เริ่มต้น:
                                                 h4#returnStartMileageDisplay.fw-bold.text-dark.mb-0 48,250 กม.
@@ -596,26 +637,44 @@ html(lang='th')
                                                 input#endMileageInput.form-control.form-control-lg.fw-bold.text-primary(type='number', required, placeholder='เช่น 48315')
                                                 span.input-group-text.bg-white กม.
 
-                                            // กล่องอัปโหลดภาพถ่ายสิ้นสุด
+                                            // กล่องอัปโหลดภาพถ่ายสิ้นสุด (รูปจริงเท่านั้น)
                                             #endPhotoDropzone.photo-upload-dropzone.mt-2
                                                 i.bi.bi-camera-fill.dropzone-icon
-                                                .dropzone-text คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพไมล์ล่าสุด
-                                                .dropzone-subtext ถ่ายภาพหน้าปัดเมื่อใช้รถเสร็จ
+                                                .dropzone-text คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพไมล์จริงล่าสุด
+                                                .dropzone-subtext ถ่ายภาพหน้าปัดจริงเมื่อใช้รถเสร็จ
                                                 input#endMileagePhotoInput.position-absolute.top-0.start-0.w-100.h-100.opacity-0(type='file', accept='image/*')
 
-                                            // กล่องแสดงตัวอย่างรูปถ่ายสิ้นสุด
+                                            // กล่องแสดงตัวอย่างรูปถ่ายจริงที่อัปโหลด
                                             #endPhotoContainer.photo-preview-container.d-none.mt-2
                                                 img#endPhotoPreview(src='', alt='ตัวอย่างรูปถ่ายหน้าปัดสิ้นสุด')
-                                                button#btnRemoveEndPhoto.btn-remove-photo(type='button', title='ลบรูปถ่าย')
+                                                button#btnRemoveEndPhoto.btn-remove-photo(type='button', title='ลบรูปถ่ายเพื่ออัปโหลดใหม่')
                                                     i.bi.bi-x-lg
                                                 span.photo-caption-badge
                                                     i.bi.bi-check-circle-fill.text-success.me-1
-                                                    | ภาพถ่ายหน้าปัดหลังใช้เสร็จ
+                                                    | ภาพถ่ายหน้าปัดจริงหลังใช้เสร็จ
 
-                                            .mt-2.text-end
+                                            .mt-2.d-flex.justify-content-between.align-items-center
+                                                small.text-muted
+                                                    i.bi.bi-shield-lock.me-1
+                                                    | แนบเฉพาะรูปจริง
                                                 button#btnDemoEndPhoto.btn.btn-outline-primary.btn-sm.btn-demo-photo(type='button')
-                                                    i.bi.bi-image.me-1
-                                                    | ใช้ภาพตัวอย่างหน้าปัดไมล์ (Demo)
+                                                    i.bi.bi-eye.me-1
+                                                    span#btnDemoEndPhotoText ดูตัวอย่าง
+
+                                            // กล่องแสดงตัวอย่างรูปหน้าปัดไมล์สิ้นสุด (สำหรับดูเป็นตัวอย่างเท่านั้น - ไม่สามารถนำมาแนบส่งได้)
+                                            #endSampleGuideBox.sample-guide-box.d-none.mt-2
+                                                .d-flex.justify-content-between.align-items-center.mb-2
+                                                    .fw-bold.text-dark.small
+                                                        i.bi.bi-info-circle-fill.text-warning.me-1
+                                                        | ตัวอย่างภาพถ่ายหน้าปัดไมล์สิ้นสุด (สำหรับอ้างอิง)
+                                                    button#btnCloseEndSample.btn-close.btn-close-sm(type='button', aria-label='Close', title='ปิดตัวอย่าง')
+                                                .sample-image-wrapper.mb-2
+                                                    img#endSamplePreviewImg(src='', alt='ตัวอย่างหน้าปัดไมล์สิ้นสุด')
+                                                    .sample-watermark-ribbon ห้ามใช้ส่งจริง
+                                                .sample-notice-banner
+                                                    i.bi.bi-exclamation-octagon-fill.text-danger.me-1
+                                                    strong รูปตัวอย่างไม่สามารถนำมาแนบส่งได้
+                                                    div.small.text-muted.mt-1 ต้องถ่ายหรืออัปโหลดภาพหน้าปัดจริงเมื่อส่งคืนรถที่กล่องด้านบนเพื่อรับเงินชดเชย
 
                             // กล่องแสดงผลการคำนวณระยะทางและเงินที่ได้รับแบบ Real-Time
                             .calc-result-box.mt-4
@@ -679,9 +738,12 @@ html(lang='th')
                                         | ช่วงเวลาใช้งาน: <span id="receiptTripPeriod" class="fw-semibold text-dark">-</span>
                                 .col-md-6
                                     .small.text-muted ข้อมูลผู้ขอใช้รถ
-                                    h6.fw-bold.mb-0
+                                    h6.fw-bold.mb-1
                                         span#receiptDriver สมชาย ใจดี
                                         span.text-muted.fw-normal.ms-1 (ฝ่าย: <span id="receiptDept">การตลาด</span>)
+                                    .small.text-muted
+                                        i.bi.bi-geo-alt-fill.text-danger.me-1
+                                        | สถานที่ไป: <span id="receiptDestination" class="fw-semibold text-dark">-</span>
                                     .small.text-muted ภารกิจ: <span id="receiptPurpose">-</span>
 
                             hr

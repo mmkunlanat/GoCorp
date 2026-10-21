@@ -782,6 +782,29 @@
                                     </label>
                                     <input class="form-control" id="passengerCount" type="number" min="1" max="15" value="2" />
                                 </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold" for="bookingDestination">
+                                        <i class="bi bi-geo-alt-fill me-1 text-danger"></i>
+                                        ไปที่ไหน (สถานที่ไป / จุดหมายปลายทาง) *
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="bi bi-pin-map-fill text-danger"></i></span>
+                                        <input class="form-control" id="bookingDestination" type="text" required placeholder="ระบุสถานที่ไป เช่น ศูนย์ราชการแจ้งวัฒนะ, อาคาร SCG บางซื่อ, หรือพบลูกค้า" list="destinationList" />
+                                        <datalist id="destinationList">
+                                            <option value="ศูนย์ราชการเฉลิมพระเกียรติฯ แจ้งวัฒนะ"></option>
+                                            <option value="อาคารเอนเนอร์ยี่คอมเพล็กซ์ (Energy Complex)"></option>
+                                            <option value="สำนักงานใหญ่ SCG บางซื่อ"></option>
+                                            <option value="ศูนย์ประชุมแห่งชาติสิริกิติ์ (QSNCC)"></option>
+                                            <option value="ไบเทค บางนา (BITEC)"></option>
+                                            <option value="นิคมอุตสาหกรรมบางปู สมุทรปราการ"></option>
+                                            <option value="ท่าอากาศยานสุวรรณภูมิ"></option>
+                                            <option value="ท่าอากาศยานดอนเมือง"></option>
+                                            <option value="พบลูกค้าภายนอก (กทม. และปริมณฑล)"></option>
+                                            <option value="ติดต่อหน่วยงานราชการ"></option>
+                                        </datalist>
+                                    </div>
+                                    <small class="text-muted">ระบุสถานที่ปลายทางหรือภารกิจที่ต้องเดินทางไปปฏิบัติงาน</small>
+                                </div>
                             </div>
                             <!-- ส่วนบังคับ: กรอกเลขไมล์เริ่มต้น + ภาพถ่าย-->
                             <div class="card border-primary bg-light">
@@ -801,27 +824,50 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">แนบรูปถ่ายหน้าปัดไมล์เริ่มต้น *</label>
-                                            <!-- กล่องเลือกไฟล์หรือถ่ายรูป-->
+                                            <!-- กล่องเลือกไฟล์หรือถ่ายรูป (รูปจริงเท่านั้น)-->
                                             <div class="photo-upload-dropzone" id="startPhotoDropzone">
                                                 <i class="bi bi-camera-fill dropzone-icon"></i>
-                                                <div class="dropzone-text">คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพหน้าปัด</div>
+                                                <div class="dropzone-text">คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพหน้าปัดจริง</div>
                                                 <div class="dropzone-subtext">รองรับไฟล์ภาพ JPEG, PNG</div>
                                                 <input class="position-absolute top-0 start-0 w-100 h-100 opacity-0" id="startMileagePhotoInput" type="file" accept="image/*" />
                                             </div>
-                                            <!-- กล่องแสดงตัวอย่างรูปถ่าย-->
+                                            <!-- กล่องแสดงตัวอย่างรูปถ่ายจริงที่อัปโหลด-->
                                             <div class="photo-preview-container d-none" id="startPhotoContainer">
                                                 <img id="startPhotoPreview" src="" alt="ตัวอย่างรูปถ่ายหน้าปัดเริ่มต้น" />
-                                                <button class="btn-remove-photo" id="btnRemoveStartPhoto" type="button" title="ลบรูปถ่าย"><i class="bi bi-x-lg"></i></button>
+                                                <button class="btn-remove-photo" id="btnRemoveStartPhoto" type="button" title="ลบรูปถ่ายเพื่ออัปโหลดใหม่"><i class="bi bi-x-lg"></i></button>
                                                 <span class="photo-caption-badge">
                                                     <i class="bi bi-check-circle-fill text-success me-1"></i>
-                                                    ภาพถ่ายหน้าปัดก่อนเดินทาง
+                                                    ภาพถ่ายหน้าปัดจริงก่อนเดินทาง
                                                 </span>
                                             </div>
-                                            <div class="mt-2 text-end">
+                                            <div class="mt-2 d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-shield-lock me-1"></i>
+                                                    แนบเฉพาะรูปจริง
+                                                </small>
                                                 <button class="btn btn-outline-primary btn-sm btn-demo-photo" id="btnDemoStartPhoto" type="button">
-                                                    <i class="bi bi-image me-1"></i>
-                                                    ใช้ภาพตัวอย่างหน้าปัดไมล์ (Demo)
+                                                    <i class="bi bi-eye me-1"></i>
+                                                    <span id="btnDemoStartPhotoText">ดูตัวอย่าง</span>
                                                 </button>
+                                            </div>
+                                            <!-- กล่องแสดงตัวอย่างรูปหน้าปัดไมล์ (สำหรับดูเป็นตัวอย่างเท่านั้น - ไม่สามารถนำมาแนบส่งได้)-->
+                                            <div class="sample-guide-box d-none mt-2" id="startSampleGuideBox">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div class="fw-bold text-dark small">
+                                                        <i class="bi bi-info-circle-fill text-warning me-1"></i>
+                                                        ตัวอย่างภาพถ่ายหน้าปัดไมล์ที่ถูกต้อง (สำหรับอ้างอิง)
+                                                    </div>
+                                                    <button class="btn-close btn-close-sm" id="btnCloseStartSample" type="button" aria-label="Close" title="ปิดตัวอย่าง"></button>
+                                                </div>
+                                                <div class="sample-image-wrapper mb-2">
+                                                    <img id="startSamplePreviewImg" src="" alt="ตัวอย่างหน้าปัดไมล์" />
+                                                    <div class="sample-watermark-ribbon">ห้ามใช้ส่งจริง</div>
+                                                </div>
+                                                <div class="sample-notice-banner">
+                                                    <i class="bi bi-exclamation-octagon-fill text-danger me-1"></i>
+                                                    <strong>รูปตัวอย่างไม่สามารถนำมาแนบส่งได้</strong>
+                                                    <div class="small text-muted mt-1">ต้องถ่ายหรืออัปโหลดภาพหน้าปัดจริงของรถยนต์คันนี้ที่กล่องด้านบนเพื่อยืนยันการใช้รถ</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -889,6 +935,10 @@
                                                 <span class="text-muted small">วันที่-เวลาเริ่ม:</span>
                                                 <span class="fw-semibold text-dark small" id="returnStartDateDisplay">-</span>
                                             </div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                                <span class="text-muted small">สถานที่ไป:</span>
+                                                <span class="fw-semibold text-danger small" id="returnDestinationDisplay">-</span>
+                                            </div>
                                             <div class="d-flex justify-content-between align-items-baseline mb-2">
                                                 <span class="text-muted">เลขไมล์เริ่มต้น:</span>
                                                 <h4 class="fw-bold text-dark mb-0" id="returnStartMileageDisplay">48,250 กม.</h4>
@@ -918,27 +968,50 @@
                                                 <input class="form-control form-control-lg fw-bold text-primary" id="endMileageInput" type="number" required placeholder="เช่น 48315" />
                                                 <span class="input-group-text bg-white">กม.</span>
                                             </div>
-                                            <!-- กล่องอัปโหลดภาพถ่ายสิ้นสุด-->
+                                            <!-- กล่องอัปโหลดภาพถ่ายสิ้นสุด (รูปจริงเท่านั้น)-->
                                             <div class="photo-upload-dropzone mt-2" id="endPhotoDropzone">
                                                 <i class="bi bi-camera-fill dropzone-icon"></i>
-                                                <div class="dropzone-text">คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพไมล์ล่าสุด</div>
-                                                <div class="dropzone-subtext">ถ่ายภาพหน้าปัดเมื่อใช้รถเสร็จ</div>
+                                                <div class="dropzone-text">คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพไมล์จริงล่าสุด</div>
+                                                <div class="dropzone-subtext">ถ่ายภาพหน้าปัดจริงเมื่อใช้รถเสร็จ</div>
                                                 <input class="position-absolute top-0 start-0 w-100 h-100 opacity-0" id="endMileagePhotoInput" type="file" accept="image/*" />
                                             </div>
-                                            <!-- กล่องแสดงตัวอย่างรูปถ่ายสิ้นสุด-->
+                                            <!-- กล่องแสดงตัวอย่างรูปถ่ายจริงที่อัปโหลด-->
                                             <div class="photo-preview-container d-none mt-2" id="endPhotoContainer">
                                                 <img id="endPhotoPreview" src="" alt="ตัวอย่างรูปถ่ายหน้าปัดสิ้นสุด" />
-                                                <button class="btn-remove-photo" id="btnRemoveEndPhoto" type="button" title="ลบรูปถ่าย"><i class="bi bi-x-lg"></i></button>
+                                                <button class="btn-remove-photo" id="btnRemoveEndPhoto" type="button" title="ลบรูปถ่ายเพื่ออัปโหลดใหม่"><i class="bi bi-x-lg"></i></button>
                                                 <span class="photo-caption-badge">
                                                     <i class="bi bi-check-circle-fill text-success me-1"></i>
-                                                    ภาพถ่ายหน้าปัดหลังใช้เสร็จ
+                                                    ภาพถ่ายหน้าปัดจริงหลังใช้เสร็จ
                                                 </span>
                                             </div>
-                                            <div class="mt-2 text-end">
+                                            <div class="mt-2 d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-shield-lock me-1"></i>
+                                                    แนบเฉพาะรูปจริง
+                                                </small>
                                                 <button class="btn btn-outline-primary btn-sm btn-demo-photo" id="btnDemoEndPhoto" type="button">
-                                                    <i class="bi bi-image me-1"></i>
-                                                    ใช้ภาพตัวอย่างหน้าปัดไมล์ (Demo)
+                                                    <i class="bi bi-eye me-1"></i>
+                                                    <span id="btnDemoEndPhotoText">ดูตัวอย่าง</span>
                                                 </button>
+                                            </div>
+                                            <!-- กล่องแสดงตัวอย่างรูปหน้าปัดไมล์สิ้นสุด (สำหรับดูเป็นตัวอย่างเท่านั้น - ไม่สามารถนำมาแนบส่งได้)-->
+                                            <div class="sample-guide-box d-none mt-2" id="endSampleGuideBox">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div class="fw-bold text-dark small">
+                                                        <i class="bi bi-info-circle-fill text-warning me-1"></i>
+                                                        ตัวอย่างภาพถ่ายหน้าปัดไมล์สิ้นสุด (สำหรับอ้างอิง)
+                                                    </div>
+                                                    <button class="btn-close btn-close-sm" id="btnCloseEndSample" type="button" aria-label="Close" title="ปิดตัวอย่าง"></button>
+                                                </div>
+                                                <div class="sample-image-wrapper mb-2">
+                                                    <img id="endSamplePreviewImg" src="" alt="ตัวอย่างหน้าปัดไมล์สิ้นสุด" />
+                                                    <div class="sample-watermark-ribbon">ห้ามใช้ส่งจริง</div>
+                                                </div>
+                                                <div class="sample-notice-banner">
+                                                    <i class="bi bi-exclamation-octagon-fill text-danger me-1"></i>
+                                                    <strong>รูปตัวอย่างไม่สามารถนำมาแนบส่งได้</strong>
+                                                    <div class="small text-muted mt-1">ต้องถ่ายหรืออัปโหลดภาพหน้าปัดจริงเมื่อส่งคืนรถที่กล่องด้านบนเพื่อรับเงินชดเชย</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1035,7 +1108,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="small text-muted">ข้อมูลผู้ขอใช้รถ</div>
-                                    <h6 class="fw-bold mb-0">
+                                    <h6 class="fw-bold mb-1">
                                         <span id="receiptDriver">สมชาย ใจดี</span>
                                         <span class="text-muted fw-normal ms-1">
                                             (ฝ่าย:
@@ -1043,6 +1116,11 @@
                                             )
                                         </span>
                                     </h6>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                        สถานที่ไป:
+                                        <span id="receiptDestination" class="fw-semibold text-dark">-</span>
+                                    </div>
                                     <div class="small text-muted">
                                         ภารกิจ:
                                         <span id="receiptPurpose">-</span>
