@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const receiptModal = receiptModalEl ? new bootstrap.Modal(receiptModalEl) : null;
     const historyModalEl = document.getElementById('selectedFleetModal');
     const historyModal = historyModalEl ? new bootstrap.Modal(historyModalEl) : null;
+    const cameraModalEl = document.getElementById('cameraModal');
+    const cameraModal = cameraModalEl ? new bootstrap.Modal(cameraModalEl) : null;
 
     // Toast
     const toastEl = document.getElementById('bookingToast');
@@ -347,6 +349,319 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // ==========================================
+    // Live Camera & Anti-Gallery Security Module
+    // ==========================================
+    let cameraStream = null;
+    let activeCameraTarget = 'start'; // 'start' | 'end'
+    let liveClockInterval = null;
+
+    // 1. Anti-Gallery Enforcement: Checks if file was captured within the last 5 minutes
+    function validateLiveCaptureFile(file) {
+        if (!file) return false;
+        const now = Date.now();
+        const fileTime = file.lastModified || 0;
+        const diffMs = Math.abs(now - fileTime);
+        const maxAgeMs = 5 * 60 * 1000; // 5 minutes
+
+        if (fileTime === 0 || diffMs > maxAgeMs) {
+            const timeRecordedStr = fileTime ? new Date(fileTime).toLocaleString('th-TH') : 'ไม่พบข้อมูลเวลา';
+            alert(`❌ ไม่อนุญาตให้นำรูปเก่าจากแกลเลอรีหรือไฟล์ในเครื่องมาใช้!\n\n` +
+                  `• เวลาที่บันทึกของไฟล์ที่เลือก: ${timeRecordedStr}\n` +
+                  `• เวลาปัจจุบันของระบบ: ${new Date().toLocaleString('th-TH')}\n\n` +
+                  `⚠️ ข้อกำหนดความปลอดภัย:\n` +
+                  `รูปถ่ายหน้าปัดไมล์ต้องเป็นภาพที่ถ่ายสด ณ เวลาปัจจุบันเท่านั้น (ไม่เกิน 5 นาที)\n` +
+                  `กรุณากดปุ่ม "เปิดกล้องถ่ายสด" เพื่อเปิดกล้องถ่ายภาพหน้าปัดจริงทันที`);
+            return false;
+        }
+        return true;
+    }
+
+    // 2. Burn Live Verified Watermark into Image Canvas
+    function addWatermarkToImage(file, plateText, callback) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width || 800;
+                canvas.height = img.height || 600;
+                const ctx = canvas.getContext('2d');
+
+                // Draw original captured image
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Watermark Banner at the bottom
+                const bannerHeight = Math.max(54, Math.round(canvas.height * 0.13));
+                const bannerY = canvas.height - bannerHeight;
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                ctx.fillRect(0, bannerY, canvas.width, bannerHeight);
+
+                ctx.fillStyle = '#22c55e';
+                ctx.fillRect(0, bannerY, canvas.width, 3);
+
+                const centerY = bannerY + bannerHeight / 2;
+                ctx.beginPath();
+                ctx.arc(28, centerY, 7, 0, Math.PI * 2);
+                ctx.fillStyle = '#22c55e';
+                ctx.fill();
+
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+                const timeStr = now.toLocaleTimeString('th-TH');
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${Math.max(14, Math.round(bannerHeight * 0.3))}px "Prompt", sans-serif`;
+                ctx.fillText(`ถ่ายสดเวลาปัจจุบัน: ${dateStr} ${timeStr} น.`, 46, centerY - 5);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = `${Math.max(11, Math.round(bannerHeight * 0.22))}px "Prompt", sans-serif`;
+                ctx.fillText(`GoCorp Live Camera Verification • ห้ามใช้รูปจากแกลเลอรี (${plateText || 'ยานพาหนะส่วนกลาง'})`, 46, centerY + 15);
+
+                callback(canvas.toDataURL('image/jpeg', 0.92));
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // 3. Update Live Clock in Camera Viewfinder
+    function updateCameraClock() {
+        const clockEl = document.getElementById('cameraLiveClock');
+        if (clockEl) {
+            const d = new Date();
+            const pad = (n) => (n < 10 ? '0' + n : n);
+            clockEl.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} น.`;
+        }
+    }
+
+    // 4. Open Camera Viewfinder
+    async function openLiveCamera(target) {
+        activeCameraTarget = target;
+        const cameraVideo = document.getElementById('cameraVideo');
+        const fallbackNotice = document.getElementById('cameraFallbackNotice');
+        const guideOverlay = document.getElementById('cameraGuideOverlay');
+        const shutterBtn = document.getElementById('btnCaptureShutter');
+
+        if (cameraModal) cameraModal.show();
+
+        updateCameraClock();
+        if (liveClockInterval) clearInterval(liveClockInterval);
+        liveClockInterval = setInterval(updateCameraClock, 1000);
+
+        if (fallbackNotice) fallbackNotice.classList.add('d-none');
+        if (guideOverlay) guideOverlay.classList.remove('d-none');
+        if (shutterBtn) shutterBtn.disabled = false;
+
+        try {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: { ideal: 'environment' },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                });
+                if (cameraVideo) {
+                    cameraVideo.srcObject = cameraStream;
+                    cameraVideo.style.display = 'block';
+                    await cameraVideo.play();
+                }
+            } else {
+                throw new Error('getUserMedia not supported');
+            }
+        } catch (err) {
+            console.warn('Camera access unavailable or denied:', err);
+            if (fallbackNotice) fallbackNotice.classList.remove('d-none');
+            if (guideOverlay) guideOverlay.classList.add('d-none');
+            if (cameraVideo) cameraVideo.style.display = 'none';
+        }
+    }
+
+    // 5. Stop Live Camera
+    function stopLiveCamera() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+        if (liveClockInterval) {
+            clearInterval(liveClockInterval);
+            liveClockInterval = null;
+        }
+        const cameraVideo = document.getElementById('cameraVideo');
+        if (cameraVideo) {
+            cameraVideo.srcObject = null;
+        }
+    }
+
+    // 6. Capture Snapshot (From WebRTC or Simulated Live Shot)
+    function captureLivePhoto(forceSimulation = false) {
+        const video = document.getElementById('cameraVideo');
+        const canvas = document.getElementById('cameraCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        const isVideoActive = !forceSimulation && cameraStream && video && video.videoWidth > 0 && !video.paused;
+
+        let width = 800;
+        let height = 600;
+
+        if (isVideoActive) {
+            width = video.videoWidth;
+            height = video.videoHeight;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(video, 0, 0, width, height);
+        } else {
+            // Live simulated dashboard snapshot
+            canvas.width = width;
+            canvas.height = height;
+
+            // Automotive dashboard background
+            const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+            bgGrad.addColorStop(0, '#0a0f1d');
+            bgGrad.addColorStop(1, '#1e293b');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, width, height);
+
+            // Dial Rings
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2 + 20, 200, 0, Math.PI * 2);
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 12;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2 + 20, 175, 0, Math.PI * 2);
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Vehicle info & mileage
+            const isStart = (activeCameraTarget === 'start');
+            const targetMileage = isStart 
+                ? (document.getElementById('startMileageInput') ? document.getElementById('startMileageInput').value : '32180')
+                : (document.getElementById('endMileageInput') && document.getElementById('endMileageInput').value ? document.getElementById('endMileageInput').value : '32280');
+            const plateStr = isStart
+                ? (currentSelectingVehicle ? currentSelectingVehicle.plate : '1กข 8924')
+                : (activeBookings[currentReturningCarId] ? activeBookings[currentReturningCarId].plate : '1กข 8924');
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '600 22px "Prompt", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('GoCorp Fleet Vehicle Odometer', width / 2, 130);
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 26px "Prompt", sans-serif';
+            ctx.fillText(plateStr, width / 2, 170);
+
+            // Digital Mileage Box
+            ctx.fillStyle = '#020617';
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 3;
+            if (ctx.roundRect) {
+                ctx.roundRect(width / 2 - 180, 210, 360, 90, 14);
+            } else {
+                ctx.rect(width / 2 - 180, 210, 360, 90);
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#22d3ee';
+            ctx.font = 'bold 46px "Courier New", monospace';
+            ctx.fillText(`${Number(targetMileage).toLocaleString()} km`, width / 2, 272);
+
+            ctx.fillStyle = '#4ade80';
+            ctx.font = '600 16px "Prompt", sans-serif';
+            ctx.fillText('● SYSTEM READY & LIVE VERIFIED', width / 2, 340);
+        }
+
+        // Live Watermark Banner (burned directly into the canvas)
+        const bannerHeight = Math.max(64, Math.round(canvas.height * 0.14));
+        const bannerY = canvas.height - bannerHeight;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+        ctx.fillRect(0, bannerY, canvas.width, bannerHeight);
+
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(0, bannerY, canvas.width, 3);
+
+        const centerY = bannerY + bannerHeight / 2;
+        ctx.beginPath();
+        ctx.arc(32, centerY, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#22c55e';
+        ctx.fill();
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+        const timeStr = now.toLocaleTimeString('th-TH');
+
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px "Prompt", sans-serif';
+        ctx.fillText(`ถ่ายสดเวลาปัจจุบัน: ${dateStr} ${timeStr} น.`, 52, centerY - 6);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '13px "Prompt", sans-serif';
+        ctx.fillText(`GoCorp Live Camera Verification • ห้ามใช้รูปจากแกลเลอรี`, 52, centerY + 16);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+        if (activeCameraTarget === 'start') {
+            setStartPhoto(dataUrl);
+            const badge = document.getElementById('startPhotoTimeBadge');
+            if (badge) badge.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i>ถ่ายสดเมื่อ ${timeStr} น.`;
+        } else {
+            setEndPhoto(dataUrl);
+            const badge = document.getElementById('endPhotoTimeBadge');
+            if (badge) badge.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i>ถ่ายสดเมื่อ ${timeStr} น.`;
+        }
+
+        stopLiveCamera();
+        if (cameraModal) cameraModal.hide();
+    }
+
+    // Modal & Button Listeners for Live Camera
+    const btnOpenStartCamera = document.getElementById('btnOpenStartCamera');
+    const btnOpenEndCamera = document.getElementById('btnOpenEndCamera');
+    const btnCaptureShutter = document.getElementById('btnCaptureShutter');
+    const btnTriggerFallbackFile = document.getElementById('btnTriggerFallbackFile');
+    const btnSimulateLiveShot = document.getElementById('btnSimulateLiveShot');
+    const btnCancelCamera = document.getElementById('btnCancelCamera');
+
+    if (btnOpenStartCamera) {
+        btnOpenStartCamera.addEventListener('click', () => openLiveCamera('start'));
+    }
+    if (btnOpenEndCamera) {
+        btnOpenEndCamera.addEventListener('click', () => openLiveCamera('end'));
+    }
+    if (btnCaptureShutter) {
+        btnCaptureShutter.addEventListener('click', () => captureLivePhoto(false));
+    }
+    if (btnSimulateLiveShot) {
+        btnSimulateLiveShot.addEventListener('click', () => captureLivePhoto(true));
+    }
+    if (btnTriggerFallbackFile) {
+        btnTriggerFallbackFile.addEventListener('click', function () {
+            if (cameraModal) cameraModal.hide();
+            stopLiveCamera();
+            if (activeCameraTarget === 'start' && startPhotoInput) {
+                startPhotoInput.click();
+            } else if (activeCameraTarget === 'end' && endPhotoInput) {
+                endPhotoInput.click();
+            }
+        });
+    }
+    if (btnCancelCamera) {
+        btnCancelCamera.addEventListener('click', stopLiveCamera);
+    }
+    if (cameraModalEl) {
+        cameraModalEl.addEventListener('hidden.bs.modal', stopLiveCamera);
+    }
+
     // Handle Start Photo Upload & Preview
     const startPhotoInput = document.getElementById('startMileagePhotoInput');
     const startPhotoContainer = document.getElementById('startPhotoContainer');
@@ -368,17 +683,28 @@ document.addEventListener('DOMContentLoaded', function () {
         if (startPhotoInput) startPhotoInput.value = '';
         if (startPhotoContainer) startPhotoContainer.classList.add('d-none');
         if (startPhotoDropzone) startPhotoDropzone.classList.remove('d-none');
+        const badge = document.getElementById('startPhotoTimeBadge');
+        if (badge) badge.innerHTML = '<i class="bi bi-patch-check-fill me-1"></i>ภาพถ่ายสดเวลาปัจจุบัน';
         validateBookingForm();
     }
 
     if (startPhotoInput) {
         startPhotoInput.addEventListener('change', function (e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => setStartPhoto(event.target.result);
-                reader.readAsDataURL(file);
+            if (!file) return;
+            if (!validateLiveCaptureFile(file)) {
+                startPhotoInput.value = '';
+                return;
             }
+            const plate = currentSelectingVehicle ? currentSelectingVehicle.plate : '';
+            addWatermarkToImage(file, plate, function (watermarkedUrl) {
+                setStartPhoto(watermarkedUrl);
+                const badge = document.getElementById('startPhotoTimeBadge');
+                if (badge) {
+                    const now = new Date();
+                    badge.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i>ถ่ายสดเมื่อ ${now.toLocaleTimeString('th-TH')} น.`;
+                }
+            });
         });
     }
 
@@ -601,17 +927,29 @@ document.addEventListener('DOMContentLoaded', function () {
         if (endPhotoInput) endPhotoInput.value = '';
         if (endPhotoContainer) endPhotoContainer.classList.add('d-none');
         if (endPhotoDropzone) endPhotoDropzone.classList.remove('d-none');
+        const badge = document.getElementById('endPhotoTimeBadge');
+        if (badge) badge.innerHTML = '<i class="bi bi-patch-check-fill me-1"></i>ภาพถ่ายสดเวลาปัจจุบัน';
         validateReturnForm();
     }
 
     if (endPhotoInput) {
         endPhotoInput.addEventListener('change', function (e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => setEndPhoto(event.target.result);
-                reader.readAsDataURL(file);
+            if (!file) return;
+            if (!validateLiveCaptureFile(file)) {
+                endPhotoInput.value = '';
+                return;
             }
+            const booking = activeBookings[currentReturningCarId];
+            const plate = booking ? booking.plate : '';
+            addWatermarkToImage(file, plate, function (watermarkedUrl) {
+                setEndPhoto(watermarkedUrl);
+                const badge = document.getElementById('endPhotoTimeBadge');
+                if (badge) {
+                    const now = new Date();
+                    badge.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i>ถ่ายสดเมื่อ ${now.toLocaleTimeString('th-TH')} น.`;
+                }
+            });
         });
     }
 

@@ -827,29 +827,36 @@
                                             </small>
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label fw-bold">แนบรูปถ่ายหน้าปัดไมล์เริ่มต้น *</label>
-                                            <!-- กล่องเลือกไฟล์หรือถ่ายรูป (รูปจริงเท่านั้น)-->
-                                            <div class="photo-upload-dropzone" id="startPhotoDropzone">
-                                                <i class="bi bi-camera-fill dropzone-icon"></i>
-                                                <div class="dropzone-text">คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพหน้าปัดจริง</div>
-                                                <div class="dropzone-subtext">รองรับไฟล์ภาพ JPEG, PNG</div>
-                                                <input class="position-absolute top-0 start-0 w-100 h-100 opacity-0" id="startMileagePhotoInput" type="file" accept="image/*" />
+                                            <label class="form-label fw-bold">ถ่ายรูปหน้าปัดไมล์เริ่มต้น (เวลาปัจจุบันเท่านั้น) *</label>
+                                            <!-- กล่องถ่ายรูป (ไม่อนุญาตให้ใช้รูปจากแกลเลอรี)-->
+                                            <div class="photo-upload-dropzone live-camera-dropzone" id="startPhotoDropzone">
+                                                <div class="camera-status-pill mb-2">
+                                                    <span class="pulse-dot-red"></span>
+                                                    ระบบตรวจจับกล้อง (Live Camera Only)
+                                                </div>
+                                                <i class="bi bi-camera-fill dropzone-icon text-primary"></i>
+                                                <div class="dropzone-text fw-bold">คลิกเพื่อเปิดกล้องถ่ายภาพหน้าปัด</div>
+                                                <div class="dropzone-subtext text-danger">
+                                                    <i class="bi bi-shield-slash me-1"></i>
+                                                    ต้องถ่ายในเวลาปัจจุบัน (ไม่อนุญาตให้ใช้รูปจากแกลเลอรี)
+                                                </div>
+                                                <input class="position-absolute top-0 start-0 w-100 h-100 opacity-0" id="startMileagePhotoInput" type="file" accept="image/*" capture="environment" />
                                             </div>
                                             <!-- กล่องแสดงตัวอย่างรูปถ่ายจริงที่อัปโหลด-->
                                             <div class="photo-preview-container d-none" id="startPhotoContainer">
                                                 <img id="startPhotoPreview" src="" alt="ตัวอย่างรูปถ่ายหน้าปัดเริ่มต้น" />
-                                                <button class="btn-remove-photo" id="btnRemoveStartPhoto" type="button" title="ลบรูปถ่ายเพื่ออัปโหลดใหม่"><i class="bi bi-x-lg"></i></button>
-                                                <span class="photo-caption-badge">
-                                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
-                                                    ภาพถ่ายหน้าปัดจริงก่อนเดินทาง
+                                                <button class="btn-remove-photo" id="btnRemoveStartPhoto" type="button" title="ลบรูปถ่ายเพื่อถ่ายใหม่"><i class="bi bi-x-lg"></i></button>
+                                                <span class="photo-caption-badge bg-success">
+                                                    <i class="bi bi-patch-check-fill me-1"></i>
+                                                    <span id="startPhotoTimeBadge">ภาพถ่ายเวลาปัจจุบัน</span>
                                                 </span>
                                             </div>
                                             <div class="mt-2 d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-shield-lock me-1"></i>
-                                                    แนบเฉพาะรูปจริง
-                                                </small>
-                                                <button class="btn btn-outline-primary btn-sm btn-demo-photo" id="btnDemoStartPhoto" type="button">
+                                                <button class="btn btn-primary btn-sm" id="btnOpenStartCamera" type="button">
+                                                    <i class="bi bi-camera-fill me-1"></i>
+                                                    ถ่ายภาพ
+                                                </button>
+                                                <button class="btn btn-outline-secondary btn-sm btn-demo-photo" id="btnDemoStartPhoto" type="button">
                                                     <i class="bi bi-eye me-1"></i>
                                                     <span id="btnDemoStartPhotoText">ดูตัวอย่าง</span>
                                                 </button>
@@ -974,28 +981,36 @@
                                                 <span class="input-group-text bg-white fw-bold">กม.</span>
                                             </div>
                                             <small class="text-muted">กรุณากรอกเลขไมล์จริงจากหน้าปัดรถยนต์เมื่อใช้เสร็จ (ต้องมากกว่าเลขเริ่มต้น)</small>
-                                            <!-- กล่องอัปโหลดภาพถ่ายสิ้นสุด (รูปจริงเท่านั้น)-->
-                                            <div class="photo-upload-dropzone mt-2" id="endPhotoDropzone">
-                                                <i class="bi bi-camera-fill dropzone-icon"></i>
-                                                <div class="dropzone-text">คลิกเพื่อถ่ายรูปหรืออัปโหลดภาพไมล์จริงล่าสุด</div>
-                                                <div class="dropzone-subtext">ถ่ายภาพหน้าปัดจริงเมื่อใช้รถเสร็จ</div>
-                                                <input class="position-absolute top-0 start-0 w-100 h-100 opacity-0" id="endMileagePhotoInput" type="file" accept="image/*" />
+                                            <label class="form-label fw-bold">ถ่ายรูปหน้าปัดไมล์สิ้นสุด (เวลาปัจจุบันเท่านั้น) *</label>
+                                            <!-- กล่องถ่ายรูปสดสิ้นสุด (ไม่อนุญาตให้ใช้รูปจากแกลเลอรี)-->
+                                            <div class="photo-upload-dropzone live-camera-dropzone mt-2" id="endPhotoDropzone">
+                                                <div class="camera-status-pill mb-2">
+                                                    <span class="pulse-dot-red"></span>
+                                                    ระบบตรวจจับกล้อง (Live Camera Only)
+                                                </div>
+                                                <i class="bi bi-camera-fill dropzone-icon text-success"></i>
+                                                <div class="dropzone-text fw-bold">คลิกเพื่อเปิดกล้องถ่ายภาพไมล์สิ้นสุด</div>
+                                                <div class="dropzone-subtext text-danger">
+                                                    <i class="bi bi-shield-slash me-1"></i>
+                                                    ต้องถ่ายในเวลาปัจจุบัน (ไม่อนุญาตให้ใช้รูปจากแกลเลอรี)
+                                                </div>
+                                                <input class="position-absolute top-0 start-0 w-100 h-100 opacity-0" id="endMileagePhotoInput" type="file" accept="image/*" capture="environment" />
                                             </div>
                                             <!-- กล่องแสดงตัวอย่างรูปถ่ายจริงที่อัปโหลด-->
                                             <div class="photo-preview-container d-none mt-2" id="endPhotoContainer">
                                                 <img id="endPhotoPreview" src="" alt="ตัวอย่างรูปถ่ายหน้าปัดสิ้นสุด" />
-                                                <button class="btn-remove-photo" id="btnRemoveEndPhoto" type="button" title="ลบรูปถ่ายเพื่ออัปโหลดใหม่"><i class="bi bi-x-lg"></i></button>
-                                                <span class="photo-caption-badge">
-                                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
-                                                    ภาพถ่ายหน้าปัดจริงหลังใช้เสร็จ
+                                                <button class="btn-remove-photo" id="btnRemoveEndPhoto" type="button" title="ลบรูปถ่ายเพื่อถ่ายใหม่"><i class="bi bi-x-lg"></i></button>
+                                                <span class="photo-caption-badge bg-success">
+                                                    <i class="bi bi-patch-check-fill me-1"></i>
+                                                    <span id="endPhotoTimeBadge">ภาพถ่ายเวลาปัจจุบัน</span>
                                                 </span>
                                             </div>
                                             <div class="mt-2 d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-shield-lock me-1"></i>
-                                                    แนบเฉพาะรูปจริง
-                                                </small>
-                                                <button class="btn btn-outline-primary btn-sm btn-demo-photo" id="btnDemoEndPhoto" type="button">
+                                                <button class="btn btn-success btn-sm" id="btnOpenEndCamera" type="button">
+                                                    <i class="bi bi-camera-fill me-1"></i>
+                                                    ถ่ายภาพ
+                                                </button>
+                                                <button class="btn btn-outline-secondary btn-sm btn-demo-photo" id="btnDemoEndPhoto" type="button">
                                                     <i class="bi bi-eye me-1"></i>
                                                     <span id="btnDemoEndPhotoText">ดูตัวอย่าง</span>
                                                 </button>
@@ -1214,6 +1229,76 @@
                         <div id="completedTripsList"></div>
                     </div>
                     <div class="modal-footer bg-light"><button class="btn btn-secondary" type="button" data-bs-dismiss="modal">ปิดหน้าต่าง</button></div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal 5: หน้าต่างเปิดกล้องถ่ายภาพสด (Live Camera Viewfinder Modal)-->
+        <div class="modal fade" id="cameraModal" tabindex="-1" aria-labelledby="cameraModalLabel" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered modal-md">
+                <div class="modal-content border-0 shadow-lg bg-dark text-white overflow-hidden">
+                    <div class="modal-header bg-dark border-secondary py-2 px-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <span class="pulse-dot-red me-2"></span>
+                            <h6 class="modal-title fw-bold mb-0 text-white" id="cameraModalLabel">
+                                <i class="bi bi-camera-video-fill text-danger me-2"></i>
+                                ถ่ายภาพสดจากกล้อง (เวลาปัจจุบัน)
+                            </h6>
+                        </div>
+                        <button class="btn-close btn-close-white" id="btnCancelCamera" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0 position-relative bg-black text-center" style="min-height: 320px; display: flex; flex-direction: column; justify-content: center; align-items: center">
+                        <!-- Live Video Viewfinder-->
+                        <video class="w-100 h-100" id="cameraVideo" autoplay playsinline muted style="max-height: 380px; object-fit: cover; background: #000"></video>
+                        <!-- Fallback UI when webcam is disabled or denied-->
+                        <div class="d-none p-4 text-center" id="cameraFallbackNotice">
+                            <i class="bi bi-camera-slash-fill text-warning fs-1 mb-2"></i>
+                            <h6 class="fw-bold">ไม่สามารถเปิดกล้องได้</h6>
+                            <p class="small text-muted mb-3">อุปกรณ์นี้อาจไม่มีกล้องเว็บแคม หรือยังไม่ได้รับอนุญาตให้เข้าถึงกล้อง</p>
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                <button class="btn btn-outline-light btn-sm" id="btnTriggerFallbackFile" type="button">
+                                    <i class="bi bi-camera-fill me-1"></i>
+                                    ถ่ายด้วยกล้องของอุปกรณ์
+                                </button>
+                                <button class="btn btn-warning btn-sm" id="btnSimulateLiveShot" type="button">
+                                    <i class="bi bi-lightning-charge-fill me-1"></i>
+                                    จำลองภาพถ่ายสดหน้าปัดจริง (Live Shot)
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Odometer Guide Overlay-->
+                        <div class="camera-guide-overlay" id="cameraGuideOverlay">
+                            <div class="guide-frame">
+                                <div class="guide-text">
+                                    <i class="bi bi-speedometer2 me-1"></i>
+                                    เล็งให้เห็นตัวเลขไมล์ในกรอบนี้
+                                </div>
+                            </div>
+                            <!-- Real-time Clock & GPS / Anti-Gallery Badge-->
+                            <div class="live-timestamp-hud">
+                                <div class="live-clock" id="cameraLiveClock">11:15:20 น.</div>
+                                <div class="live-badge">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    ถ่ายสดเวลาปัจจุบัน • ห้ามใช้รูปเก่า
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hidden canvas for snapshot-->
+                        <canvas class="d-none" id="cameraCanvas"></canvas>
+                    </div>
+                    <div class="modal-footer bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-light btn-sm" type="button" data-bs-dismiss="modal">
+                            <i class="bi bi-x-lg me-1"></i>
+                            ยกเลิก
+                        </button>
+                        <button class="btn btn-danger px-4 py-2 fw-bold rounded-pill shadow" id="btnCaptureShutter" type="button">
+                            <i class="bi bi-camera-fill fs-5 me-2"></i>
+                            กดถ่ายภาพหน้าปัดเดี๋ยวนี้ (ชัตเตอร์)
+                        </button>
+                        <small class="text-muted">
+                            <i class="bi bi-clock-history me-1"></i>
+                            ประทับเวลาทันที
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
