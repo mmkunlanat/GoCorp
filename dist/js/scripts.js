@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const receiptModal = receiptModalEl ? new bootstrap.Modal(receiptModalEl) : null;
     const historyModalEl = document.getElementById('selectedFleetModal');
     const historyModal = historyModalEl ? new bootstrap.Modal(historyModalEl) : null;
+    const cameraModalEl = document.getElementById('cameraModal');
+    const cameraModal = cameraModalEl ? new bootstrap.Modal(cameraModalEl) : null;
 
     // Toast
     const toastEl = document.getElementById('bookingToast');
@@ -67,9 +69,14 @@ document.addEventListener('DOMContentLoaded', function () {
             <rect x="80" y="105" width="240" height="60" rx="8" fill="#020617" stroke="#38bdf8" stroke-width="2"/>
             <text x="200" y="146" fill="#22d3ee" font-size="28" font-family="'Courier New', monospace" font-weight="bold" text-anchor="middle" letter-spacing="3">${Number(mileageKm).toLocaleString()} km</text>
             
+            <!-- Watermark: Sample Only - Cannot be used for submission -->
+            <rect x="25" y="88" width="350" height="92" rx="8" fill="rgba(239, 68, 68, 0.15)" stroke="rgba(239, 68, 68, 0.6)" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="200" y="103" fill="#f87171" font-size="11" font-family="'Prompt', sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="0.5">⚠️ ภาพตัวอย่างเพื่ออ้างอิงเท่านั้น (SAMPLE ONLY)</text>
+            <text x="200" y="174" fill="#ef4444" font-size="11" font-family="'Prompt', sans-serif" font-weight="bold" text-anchor="middle">❌ ไม่สามารถนำมาแนบส่งในระบบได้</text>
+            
             <!-- Bottom Specs -->
-            <text x="120" y="195" fill="#4ade80" font-size="12" font-family="'Prompt', sans-serif">● READY</text>
-            <text x="280" y="195" fill="#facc15" font-size="12" font-family="'Prompt', sans-serif">FUEL 85%</text>
+            <text x="120" y="198" fill="#4ade80" font-size="12" font-family="'Prompt', sans-serif">● READY</text>
+            <text x="280" y="198" fill="#facc15" font-size="12" font-family="'Prompt', sans-serif">FUEL 85%</text>
             <text x="200" y="222" fill="#64748b" font-size="11" font-family="'Prompt', sans-serif" text-anchor="middle">${new Date().toLocaleString('th-TH')}</text>
         </svg>
         `;
@@ -100,10 +107,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const startDateInput = document.getElementById('bookingStartDate');
         const startMileageInput = document.getElementById('startMileageInput');
         const passengerCountInput = document.getElementById('passengerCount');
+        const destinationInput = document.getElementById('bookingDestination');
 
         const startDateVal = startDateInput ? startDateInput.value.trim() : '';
         const mileageVal = startMileageInput ? parseInt(startMileageInput.value, 10) : 0;
         const passengerVal = passengerCountInput ? parseInt(passengerCountInput.value, 10) : 1;
+        const destinationVal = destinationInput ? destinationInput.value.trim() : '';
         const minMileage = (currentSelectingVehicle && currentSelectingVehicle.currentMileage) ? currentSelectingVehicle.currentMileage : 0;
 
         let missingParts = [];
@@ -113,6 +122,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (startDateInput) startDateInput.classList.add('is-invalid');
         } else {
             if (startDateInput) startDateInput.classList.remove('is-invalid');
+        }
+
+        if (!destinationVal) {
+            missingParts.push('ระบุสถานที่ไป');
+            if (destinationInput) destinationInput.classList.add('is-invalid');
+        } else {
+            if (destinationInput) destinationInput.classList.remove('is-invalid');
         }
 
         if (!mileageVal || isNaN(mileageVal)) {
@@ -133,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!startPhotoDataUrl) {
-            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์');
+            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์จริง (รูปตัวอย่างไม่สามารถใช้ส่งได้)');
         }
 
         const isValid = missingParts.length === 0;
@@ -199,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!endPhotoDataUrl) {
-            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์หลังใช้');
+            missingParts.push('แนบรูปถ่ายหน้าปัดไมล์จริงหลังใช้ (รูปตัวอย่างไม่สามารถใช้ส่งได้)');
         }
 
         const isValid = missingParts.length === 0;
@@ -301,15 +317,26 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('modalCarParking').textContent = parking;
         document.getElementById('modalPlatePreview').className = 'thai-license-plate ' + plateType;
 
-        // Populate mileage
+        // Populate mileage: แสดงเลขไมล์ปัจจุบันของรถยนต์คันที่เลือก
         const startMileageInput = document.getElementById('startMileageInput');
         if (startMileageInput) {
             startMileageInput.value = currentMileage;
             startMileageInput.setAttribute('min', currentMileage);
+            startMileageInput.setAttribute('readonly', 'readonly');
         }
 
-        // Reset photo preview
+        // Reset photo preview and destination input
         resetStartPhoto();
+        const startSampleBox = document.getElementById('startSampleGuideBox');
+        const startBtnText = document.getElementById('btnDemoStartPhotoText');
+        if (startSampleBox) startSampleBox.classList.add('d-none');
+        if (startBtnText) startBtnText.textContent = 'ดูตัวอย่าง';
+
+        const destinationInput = document.getElementById('bookingDestination');
+        if (destinationInput) {
+            destinationInput.value = '';
+            destinationInput.classList.remove('is-invalid');
+        }
 
         // Set default start date-time
         const now = new Date();
@@ -326,6 +353,319 @@ document.addEventListener('DOMContentLoaded', function () {
             bookingModal.show();
         }
     });
+
+    // ==========================================
+    // Live Camera & Anti-Gallery Security Module
+    // ==========================================
+    let cameraStream = null;
+    let activeCameraTarget = 'start'; // 'start' | 'end'
+    let liveClockInterval = null;
+
+    // 1. Anti-Gallery Enforcement: Checks if file was captured within the last 5 minutes
+    function validateLiveCaptureFile(file) {
+        if (!file) return false;
+        const now = Date.now();
+        const fileTime = file.lastModified || 0;
+        const diffMs = Math.abs(now - fileTime);
+        const maxAgeMs = 5 * 60 * 1000; // 5 minutes
+
+        if (fileTime === 0 || diffMs > maxAgeMs) {
+            const timeRecordedStr = fileTime ? new Date(fileTime).toLocaleString('th-TH') : 'ไม่พบข้อมูลเวลา';
+            alert(`❌ ไม่อนุญาตให้นำรูปเก่าจากแกลเลอรีหรือไฟล์ในเครื่องมาใช้!\n\n` +
+                  `• เวลาที่บันทึกของไฟล์ที่เลือก: ${timeRecordedStr}\n` +
+                  `• เวลาปัจจุบันของระบบ: ${new Date().toLocaleString('th-TH')}\n\n` +
+                  `⚠️ ข้อกำหนดความปลอดภัย:\n` +
+                  `รูปถ่ายหน้าปัดไมล์ต้องเป็นภาพที่ถ่ายสด ณ เวลาปัจจุบันเท่านั้น (ไม่เกิน 5 นาที)\n` +
+                  `กรุณากดปุ่ม "เปิดกล้องถ่ายสด" เพื่อเปิดกล้องถ่ายภาพหน้าปัดจริงทันที`);
+            return false;
+        }
+        return true;
+    }
+
+    // 2. Burn Live Verified Watermark into Image Canvas
+    function addWatermarkToImage(file, plateText, callback) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width || 800;
+                canvas.height = img.height || 600;
+                const ctx = canvas.getContext('2d');
+
+                // Draw original captured image
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Watermark Banner at the bottom
+                const bannerHeight = Math.max(54, Math.round(canvas.height * 0.13));
+                const bannerY = canvas.height - bannerHeight;
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                ctx.fillRect(0, bannerY, canvas.width, bannerHeight);
+
+                ctx.fillStyle = '#22c55e';
+                ctx.fillRect(0, bannerY, canvas.width, 3);
+
+                const centerY = bannerY + bannerHeight / 2;
+                ctx.beginPath();
+                ctx.arc(28, centerY, 7, 0, Math.PI * 2);
+                ctx.fillStyle = '#22c55e';
+                ctx.fill();
+
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+                const timeStr = now.toLocaleTimeString('th-TH');
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${Math.max(14, Math.round(bannerHeight * 0.3))}px "Prompt", sans-serif`;
+                ctx.fillText(`ถ่ายสดเวลาปัจจุบัน: ${dateStr} ${timeStr} น.`, 46, centerY - 5);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = `${Math.max(11, Math.round(bannerHeight * 0.22))}px "Prompt", sans-serif`;
+                ctx.fillText(`GoCorp Live Camera Verification • ห้ามใช้รูปจากแกลเลอรี (${plateText || 'ยานพาหนะส่วนกลาง'})`, 46, centerY + 15);
+
+                callback(canvas.toDataURL('image/jpeg', 0.92));
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // 3. Update Live Clock in Camera Viewfinder
+    function updateCameraClock() {
+        const clockEl = document.getElementById('cameraLiveClock');
+        if (clockEl) {
+            const d = new Date();
+            const pad = (n) => (n < 10 ? '0' + n : n);
+            clockEl.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} น.`;
+        }
+    }
+
+    // 4. Open Camera Viewfinder
+    async function openLiveCamera(target) {
+        activeCameraTarget = target;
+        const cameraVideo = document.getElementById('cameraVideo');
+        const fallbackNotice = document.getElementById('cameraFallbackNotice');
+        const guideOverlay = document.getElementById('cameraGuideOverlay');
+        const shutterBtn = document.getElementById('btnCaptureShutter');
+
+        if (cameraModal) cameraModal.show();
+
+        updateCameraClock();
+        if (liveClockInterval) clearInterval(liveClockInterval);
+        liveClockInterval = setInterval(updateCameraClock, 1000);
+
+        if (fallbackNotice) fallbackNotice.classList.add('d-none');
+        if (guideOverlay) guideOverlay.classList.remove('d-none');
+        if (shutterBtn) shutterBtn.disabled = false;
+
+        try {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: { ideal: 'environment' },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                });
+                if (cameraVideo) {
+                    cameraVideo.srcObject = cameraStream;
+                    cameraVideo.style.display = 'block';
+                    await cameraVideo.play();
+                }
+            } else {
+                throw new Error('getUserMedia not supported');
+            }
+        } catch (err) {
+            console.warn('Camera access unavailable or denied:', err);
+            if (fallbackNotice) fallbackNotice.classList.remove('d-none');
+            if (guideOverlay) guideOverlay.classList.add('d-none');
+            if (cameraVideo) cameraVideo.style.display = 'none';
+        }
+    }
+
+    // 5. Stop Live Camera
+    function stopLiveCamera() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+        if (liveClockInterval) {
+            clearInterval(liveClockInterval);
+            liveClockInterval = null;
+        }
+        const cameraVideo = document.getElementById('cameraVideo');
+        if (cameraVideo) {
+            cameraVideo.srcObject = null;
+        }
+    }
+
+    // 6. Capture Snapshot (From WebRTC or Simulated Live Shot)
+    function captureLivePhoto(forceSimulation = false) {
+        const video = document.getElementById('cameraVideo');
+        const canvas = document.getElementById('cameraCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        const isVideoActive = !forceSimulation && cameraStream && video && video.videoWidth > 0 && !video.paused;
+
+        let width = 800;
+        let height = 600;
+
+        if (isVideoActive) {
+            width = video.videoWidth;
+            height = video.videoHeight;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(video, 0, 0, width, height);
+        } else {
+            // Live simulated dashboard snapshot
+            canvas.width = width;
+            canvas.height = height;
+
+            // Automotive dashboard background
+            const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+            bgGrad.addColorStop(0, '#0a0f1d');
+            bgGrad.addColorStop(1, '#1e293b');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, width, height);
+
+            // Dial Rings
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2 + 20, 200, 0, Math.PI * 2);
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 12;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2 + 20, 175, 0, Math.PI * 2);
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Vehicle info & mileage
+            const isStart = (activeCameraTarget === 'start');
+            const targetMileage = isStart 
+                ? (document.getElementById('startMileageInput') ? document.getElementById('startMileageInput').value : '32180')
+                : (document.getElementById('endMileageInput') && document.getElementById('endMileageInput').value ? document.getElementById('endMileageInput').value : '32280');
+            const plateStr = isStart
+                ? (currentSelectingVehicle ? currentSelectingVehicle.plate : '1กข 8924')
+                : (activeBookings[currentReturningCarId] ? activeBookings[currentReturningCarId].plate : '1กข 8924');
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '600 22px "Prompt", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('GoCorp Fleet Vehicle Odometer', width / 2, 130);
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 26px "Prompt", sans-serif';
+            ctx.fillText(plateStr, width / 2, 170);
+
+            // Digital Mileage Box
+            ctx.fillStyle = '#020617';
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 3;
+            if (ctx.roundRect) {
+                ctx.roundRect(width / 2 - 180, 210, 360, 90, 14);
+            } else {
+                ctx.rect(width / 2 - 180, 210, 360, 90);
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#22d3ee';
+            ctx.font = 'bold 46px "Courier New", monospace';
+            ctx.fillText(`${Number(targetMileage).toLocaleString()} km`, width / 2, 272);
+
+            ctx.fillStyle = '#4ade80';
+            ctx.font = '600 16px "Prompt", sans-serif';
+            ctx.fillText('● SYSTEM READY & LIVE VERIFIED', width / 2, 340);
+        }
+
+        // Live Watermark Banner (burned directly into the canvas)
+        const bannerHeight = Math.max(64, Math.round(canvas.height * 0.14));
+        const bannerY = canvas.height - bannerHeight;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+        ctx.fillRect(0, bannerY, canvas.width, bannerHeight);
+
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(0, bannerY, canvas.width, 3);
+
+        const centerY = bannerY + bannerHeight / 2;
+        ctx.beginPath();
+        ctx.arc(32, centerY, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#22c55e';
+        ctx.fill();
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+        const timeStr = now.toLocaleTimeString('th-TH');
+
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px "Prompt", sans-serif';
+        ctx.fillText(`ถ่ายสดเวลาปัจจุบัน: ${dateStr} ${timeStr} น.`, 52, centerY - 6);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '13px "Prompt", sans-serif';
+        ctx.fillText(`GoCorp Live Camera Verification • ห้ามใช้รูปจากแกลเลอรี`, 52, centerY + 16);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+        if (activeCameraTarget === 'start') {
+            setStartPhoto(dataUrl);
+            const badge = document.getElementById('startPhotoTimeBadge');
+            if (badge) badge.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i>ถ่ายสดเมื่อ ${timeStr} น.`;
+        } else {
+            setEndPhoto(dataUrl);
+            const badge = document.getElementById('endPhotoTimeBadge');
+            if (badge) badge.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i>ถ่ายสดเมื่อ ${timeStr} น.`;
+        }
+
+        stopLiveCamera();
+        if (cameraModal) cameraModal.hide();
+    }
+
+    // Modal & Button Listeners for Live Camera
+    const btnOpenStartCamera = document.getElementById('btnOpenStartCamera');
+    const btnOpenEndCamera = document.getElementById('btnOpenEndCamera');
+    const btnCaptureShutter = document.getElementById('btnCaptureShutter');
+    const btnTriggerFallbackFile = document.getElementById('btnTriggerFallbackFile');
+    const btnSimulateLiveShot = document.getElementById('btnSimulateLiveShot');
+    const btnCancelCamera = document.getElementById('btnCancelCamera');
+
+    if (btnOpenStartCamera) {
+        btnOpenStartCamera.addEventListener('click', () => openLiveCamera('start'));
+    }
+    if (btnOpenEndCamera) {
+        btnOpenEndCamera.addEventListener('click', () => openLiveCamera('end'));
+    }
+    if (btnCaptureShutter) {
+        btnCaptureShutter.addEventListener('click', () => captureLivePhoto(false));
+    }
+    if (btnSimulateLiveShot) {
+        btnSimulateLiveShot.addEventListener('click', () => captureLivePhoto(true));
+    }
+    if (btnTriggerFallbackFile) {
+        btnTriggerFallbackFile.addEventListener('click', function () {
+            if (cameraModal) cameraModal.hide();
+            stopLiveCamera();
+            if (activeCameraTarget === 'start' && startPhotoInput) {
+                startPhotoInput.click();
+            } else if (activeCameraTarget === 'end' && endPhotoInput) {
+                endPhotoInput.click();
+            }
+        });
+    }
+    if (btnCancelCamera) {
+        btnCancelCamera.addEventListener('click', stopLiveCamera);
+    }
+    if (cameraModalEl) {
+        cameraModalEl.addEventListener('hidden.bs.modal', stopLiveCamera);
+    }
 
     // Handle Start Photo Upload & Preview
     const startPhotoInput = document.getElementById('startMileagePhotoInput');
@@ -348,17 +688,28 @@ document.addEventListener('DOMContentLoaded', function () {
         if (startPhotoInput) startPhotoInput.value = '';
         if (startPhotoContainer) startPhotoContainer.classList.add('d-none');
         if (startPhotoDropzone) startPhotoDropzone.classList.remove('d-none');
+        const badge = document.getElementById('startPhotoTimeBadge');
+        if (badge) badge.innerHTML = '<i class="bi bi-patch-check-fill me-1"></i>ภาพถ่ายสดเวลาปัจจุบัน';
         validateBookingForm();
     }
 
     if (startPhotoInput) {
         startPhotoInput.addEventListener('change', function (e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => setStartPhoto(event.target.result);
-                reader.readAsDataURL(file);
+            if (!file) return;
+            if (!validateLiveCaptureFile(file)) {
+                startPhotoInput.value = '';
+                return;
             }
+            const plate = currentSelectingVehicle ? currentSelectingVehicle.plate : '';
+            addWatermarkToImage(file, plate, function (watermarkedUrl) {
+                setStartPhoto(watermarkedUrl);
+                const badge = document.getElementById('startPhotoTimeBadge');
+                if (badge) {
+                    const now = new Date();
+                    badge.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i>ถ่ายสดเมื่อ ${now.toLocaleTimeString('th-TH')} น.`;
+                }
+            });
         });
     }
 
@@ -366,11 +717,33 @@ document.addEventListener('DOMContentLoaded', function () {
         btnRemoveStartPhoto.addEventListener('click', resetStartPhoto);
     }
 
+    const startSampleGuideBox = document.getElementById('startSampleGuideBox');
+    const startSamplePreviewImg = document.getElementById('startSamplePreviewImg');
+    const btnDemoStartPhotoText = document.getElementById('btnDemoStartPhotoText');
+    const btnCloseStartSample = document.getElementById('btnCloseStartSample');
+
+    function toggleStartSampleGuide() {
+        if (!startSampleGuideBox) return;
+        const mileageVal = document.getElementById('startMileageInput').value || '48250';
+        const demoUrl = generateOdometerSvg(mileageVal, 'ตัวอย่างหน้าปัดไมล์ก่อนขับ (SAMPLE)');
+        if (startSampleGuideBox.classList.contains('d-none')) {
+            if (startSamplePreviewImg) startSamplePreviewImg.src = demoUrl;
+            startSampleGuideBox.classList.remove('d-none');
+            if (btnDemoStartPhotoText) btnDemoStartPhotoText.textContent = 'ซ่อนตัวอย่าง';
+        } else {
+            startSampleGuideBox.classList.add('d-none');
+            if (btnDemoStartPhotoText) btnDemoStartPhotoText.textContent = 'ดูตัวอย่าง';
+        }
+    }
+
     if (btnDemoStartPhoto) {
-        btnDemoStartPhoto.addEventListener('click', function () {
-            const mileageVal = document.getElementById('startMileageInput').value || '48250';
-            const demoUrl = generateOdometerSvg(mileageVal, 'ไมล์เริ่มต้นก่อนขับ');
-            setStartPhoto(demoUrl);
+        btnDemoStartPhoto.addEventListener('click', toggleStartSampleGuide);
+    }
+
+    if (btnCloseStartSample) {
+        btnCloseStartSample.addEventListener('click', function () {
+            if (startSampleGuideBox) startSampleGuideBox.classList.add('d-none');
+            if (btnDemoStartPhotoText) btnDemoStartPhotoText.textContent = 'ดูตัวอย่าง';
         });
     }
 
@@ -395,6 +768,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const requesterName = currentUserProfile.name;
             const department = currentUserProfile.department;
             const purpose = currentUserProfile.purpose;
+            const destinationInput = document.getElementById('bookingDestination');
+            const destination = destinationInput ? destinationInput.value.trim() : 'เดินทางปฏิบัติงาน';
             const startDate = document.getElementById('bookingStartDate').value;
             const passengers = document.getElementById('passengerCount').value;
             const startMileage = parseInt(document.getElementById('startMileageInput').value, 10);
@@ -407,6 +782,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 requesterName,
                 department,
                 purpose,
+                destination,
                 startDate,
                 endDate: null,
                 passengers,
@@ -472,10 +848,14 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('returnStartMileageDisplay').textContent = booking.startMileage.toLocaleString() + ' กม.';
         document.getElementById('returnStartPhotoPreview').src = booking.startPhoto;
 
-        // Display start date-time
+        // Display start date-time & destination
         const returnStartDateDisplay = document.getElementById('returnStartDateDisplay');
         if (returnStartDateDisplay) {
             returnStartDateDisplay.textContent = formatDateTimeDisplay(booking.startDate);
+        }
+        const returnDestinationDisplay = document.getElementById('returnDestinationDisplay');
+        if (returnDestinationDisplay) {
+            returnDestinationDisplay.textContent = booking.destination || 'เดินทางปฏิบัติงาน';
         }
 
         // Pre-fill return end date-time to right now
@@ -490,14 +870,21 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Pre-fill end mileage (start + 65 km as typical demo trip)
-        const suggestedEndMileage = booking.startMileage + 65;
+        // เลขไมล์สิ้นสุด: ให้ผู้ใช้กรอกเอง (ไม่ pre-fill อัตโนมัติ)
         const endInput = document.getElementById('endMileageInput');
-        endInput.value = suggestedEndMileage;
-        endInput.setAttribute('min', booking.startMileage);
+        if (endInput) {
+            endInput.value = '';
+            endInput.setAttribute('min', booking.startMileage);
+            endInput.classList.remove('is-invalid');
+            endInput.placeholder = `กรอกเลขไมล์ที่มากกว่า ${booking.startMileage.toLocaleString()} กม.`;
+        }
 
-        // Reset end photo
+        // Reset end photo & sample guide box
         resetEndPhoto();
+        const endSampleBox = document.getElementById('endSampleGuideBox');
+        const endBtnText = document.getElementById('btnDemoEndPhotoText');
+        if (endSampleBox) endSampleBox.classList.add('d-none');
+        if (endBtnText) endBtnText.textContent = 'ดูตัวอย่าง';
 
         // Calculate initially
         recalculateSettlement(booking.startMileage);
@@ -545,17 +932,29 @@ document.addEventListener('DOMContentLoaded', function () {
         if (endPhotoInput) endPhotoInput.value = '';
         if (endPhotoContainer) endPhotoContainer.classList.add('d-none');
         if (endPhotoDropzone) endPhotoDropzone.classList.remove('d-none');
+        const badge = document.getElementById('endPhotoTimeBadge');
+        if (badge) badge.innerHTML = '<i class="bi bi-patch-check-fill me-1"></i>ภาพถ่ายสดเวลาปัจจุบัน';
         validateReturnForm();
     }
 
     if (endPhotoInput) {
         endPhotoInput.addEventListener('change', function (e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => setEndPhoto(event.target.result);
-                reader.readAsDataURL(file);
+            if (!file) return;
+            if (!validateLiveCaptureFile(file)) {
+                endPhotoInput.value = '';
+                return;
             }
+            const booking = activeBookings[currentReturningCarId];
+            const plate = booking ? booking.plate : '';
+            addWatermarkToImage(file, plate, function (watermarkedUrl) {
+                setEndPhoto(watermarkedUrl);
+                const badge = document.getElementById('endPhotoTimeBadge');
+                if (badge) {
+                    const now = new Date();
+                    badge.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i>ถ่ายสดเมื่อ ${now.toLocaleTimeString('th-TH')} น.`;
+                }
+            });
         });
     }
 
@@ -563,31 +962,70 @@ document.addEventListener('DOMContentLoaded', function () {
         btnRemoveEndPhoto.addEventListener('click', resetEndPhoto);
     }
 
+    const endSampleGuideBox = document.getElementById('endSampleGuideBox');
+    const endSamplePreviewImg = document.getElementById('endSamplePreviewImg');
+    const btnDemoEndPhotoText = document.getElementById('btnDemoEndPhotoText');
+    const btnCloseEndSample = document.getElementById('btnCloseEndSample');
+
+    function toggleEndSampleGuide() {
+        if (!endSampleGuideBox) return;
+        const endMileageVal = document.getElementById('endMileageInput').value || '48315';
+        const demoUrl = generateOdometerSvg(endMileageVal, 'ตัวอย่างหน้าปัดไมล์สิ้นสุด (SAMPLE)');
+        if (endSampleGuideBox.classList.contains('d-none')) {
+            if (endSamplePreviewImg) endSamplePreviewImg.src = demoUrl;
+            endSampleGuideBox.classList.remove('d-none');
+            if (btnDemoEndPhotoText) btnDemoEndPhotoText.textContent = 'ซ่อนตัวอย่าง';
+        } else {
+            endSampleGuideBox.classList.add('d-none');
+            if (btnDemoEndPhotoText) btnDemoEndPhotoText.textContent = 'ดูตัวอย่าง';
+        }
+    }
+
     if (btnDemoEndPhoto) {
-        btnDemoEndPhoto.addEventListener('click', function () {
-            const endMileageVal = document.getElementById('endMileageInput').value || '48315';
-            const demoUrl = generateOdometerSvg(endMileageVal, 'ไมล์สิ้นสุดหลังใช้รถ');
-            setEndPhoto(demoUrl);
+        btnDemoEndPhoto.addEventListener('click', toggleEndSampleGuide);
+    }
+
+    if (btnCloseEndSample) {
+        btnCloseEndSample.addEventListener('click', function () {
+            if (endSampleGuideBox) endSampleGuideBox.classList.add('d-none');
+            if (btnDemoEndPhotoText) btnDemoEndPhotoText.textContent = 'ดูตัวอย่าง';
         });
     }
 
     // 5. Live Calculation for Distance and Reimbursement
     function recalculateSettlement(startMileage) {
-        const endMileage = parseInt(document.getElementById('endMileageInput').value || '0', 10);
+        const endInputEl = document.getElementById('endMileageInput');
+        const endValStr = endInputEl ? endInputEl.value.trim() : '';
         const ratePerKm = parseFloat(document.getElementById('ratePerKmInput').value || '5.00');
-
-        const distance = Math.max(0, endMileage - startMileage);
-        const totalAmount = distance * ratePerKm;
 
         const distanceEl = document.getElementById('calcDistanceDisplay');
         const rateEl = document.getElementById('calcRateDisplay');
         const totalEl = document.getElementById('calcTotalDisplay');
         const formulaEl = document.getElementById('calcFormulaDisplay');
 
-        if (distanceEl) distanceEl.textContent = distance.toLocaleString() + ' กม.';
         if (rateEl) rateEl.textContent = ratePerKm.toFixed(2) + ' บ./กม.';
-        if (totalEl) totalEl.textContent = '฿ ' + totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        if (formulaEl) formulaEl.textContent = `(ระยะทาง ${distance} กม. × ${ratePerKm} บาท/กม.)`;
+
+        if (!endValStr || isNaN(parseInt(endValStr, 10))) {
+            if (distanceEl) distanceEl.textContent = '- กม.';
+            if (totalEl) totalEl.textContent = '฿ 0.00 บาท';
+            if (formulaEl) formulaEl.textContent = '(กรุณากรอกเลขไมล์สิ้นสุดเพื่อคำนวณเงินชดเชย)';
+            return;
+        }
+
+        const endMileage = parseInt(endValStr, 10);
+        if (endMileage < startMileage) {
+            if (distanceEl) distanceEl.textContent = '0 กม. (ไมล์น้อยกว่าเริ่มต้น)';
+            if (totalEl) totalEl.textContent = '฿ 0.00 บาท';
+            if (formulaEl) formulaEl.textContent = `(เลขไมล์ต้องมากกว่าหรือเท่ากับ ${startMileage.toLocaleString()} กม.)`;
+            return;
+        }
+
+        const distance = endMileage - startMileage;
+        const totalAmount = distance * ratePerKm;
+
+        if (distanceEl) distanceEl.textContent = distance.toLocaleString() + ' กม.';
+        if (totalEl) totalEl.textContent = '฿ ' + totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
+        if (formulaEl) formulaEl.textContent = `(ระยะทาง ${distance.toLocaleString()} กม. × ${ratePerKm.toFixed(2)} บาท/กม.)`;
     }
 
     const endMileageInput = document.getElementById('endMileageInput');
@@ -617,6 +1055,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const startMileageInputEl = document.getElementById('startMileageInput');
     const bookingStartDateEl = document.getElementById('bookingStartDate');
     const passengerCountEl = document.getElementById('passengerCount');
+    const bookingDestinationEl = document.getElementById('bookingDestination');
     if (startMileageInputEl) {
         startMileageInputEl.addEventListener('input', validateBookingForm);
         startMileageInputEl.addEventListener('change', validateBookingForm);
@@ -628,6 +1067,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (passengerCountEl) {
         passengerCountEl.addEventListener('input', validateBookingForm);
         passengerCountEl.addEventListener('change', validateBookingForm);
+    }
+    if (bookingDestinationEl) {
+        bookingDestinationEl.addEventListener('input', validateBookingForm);
+        bookingDestinationEl.addEventListener('change', validateBookingForm);
     }
 
     // Input change listeners for return modal real-time validation
@@ -731,6 +1174,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('receiptDriver').textContent = record.requesterName;
         document.getElementById('receiptDept').textContent = record.department;
         document.getElementById('receiptPurpose').textContent = record.purpose;
+        const receiptDestEl = document.getElementById('receiptDestination');
+        if (receiptDestEl) {
+            receiptDestEl.textContent = record.destination || 'เดินทางปฏิบัติงาน';
+        }
         document.getElementById('receiptCompletedAt').textContent = record.completedAt;
 
         const periodEl = document.getElementById('receiptTripPeriod');
@@ -796,6 +1243,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                         <i class="bi bi-person me-1"></i>ผู้ใช้: ${item.requesterName} (${item.department})
                                     </div>
                                     <div class="small text-muted">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>สถานที่ไป: <strong class="text-dark">${item.destination || '-'}</strong>
+                                    </div>
+                                    <div class="small text-muted">
                                         <i class="bi bi-clock me-1"></i>เริ่มใช้งาน: <strong>${formatDateTimeDisplay(item.startDate)}</strong>
                                     </div>
                                     <div class="small text-muted">
@@ -825,6 +1275,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <strong class="text-dark">${item.plate} - ${item.name}</strong>
                                     <div class="small text-muted mt-1">
                                         ผู้ใช้: ${item.requesterName} • คืนเมื่อ: <strong>${item.completedAt}</strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>สถานที่ไป: <strong>${item.destination || '-'}</strong>
                                     </div>
                                     <div class="small text-muted">
                                         ระยะทาง: <strong>${item.distance} กม.</strong> (${item.ratePerKm} บ./กม.)
