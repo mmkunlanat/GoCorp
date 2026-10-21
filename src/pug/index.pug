@@ -515,11 +515,15 @@ html(lang='th')
                                     .row.g-3
                                         .col-md-6
                                             label.form-label.fw-bold(for='startMileageInput')
-                                                | เลขไมล์เริ่มต้นที่แสดงบนหน้าปัด (กิโลเมตร) *
+                                                | เลขไมล์เริ่มต้น (แสดงเลขไมล์ปัจจุบัน) *
                                             .input-group
-                                                input#startMileageInput.form-control.form-control-lg.fw-bold(type='number', required, placeholder='เช่น 48250')
-                                                span.input-group-text.bg-white กม.
-                                            small.text-muted ตรวจสอบตัวเลขหน้าปัดจริงของรถยนต์คันนี้
+                                                span.input-group-text.bg-light
+                                                    i.bi.bi-speedometer2.text-primary
+                                                input#startMileageInput.form-control.form-control-lg.fw-bold.bg-light(type='number', readonly, placeholder='เลขไมล์ปัจจุบัน')
+                                                span.input-group-text.bg-light.fw-bold กม.
+                                            small.text-muted
+                                                i.bi.bi-check-circle-fill.text-success.me-1
+                                                | แสดงเลขไมล์ปัจจุบันของรถยนต์คันนี้โดยอัตโนมัติ
 
                                         .col-md-6
                                             label.form-label.fw-bold
@@ -632,10 +636,13 @@ html(lang='th')
                                                     | วันที่และเวลาสิ้นสุดการใช้งาน *
                                                 input#returnEndDateInput.form-control(type='datetime-local', required)
                                             label.form-label.fw-bold(for='endMileageInput')
-                                                | กรอกเลขไมล์ที่แสดงล่าสุด (กม.) *
-                                            .input-group.mb-2
-                                                input#endMileageInput.form-control.form-control-lg.fw-bold.text-primary(type='number', required, placeholder='เช่น 48315')
-                                                span.input-group-text.bg-white กม.
+                                                | เลขไมล์สิ้นสุด (ผู้ใช้กรอกเองจากหน้าปัด) *
+                                            .input-group.mb-1
+                                                span.input-group-text.bg-white
+                                                    i.bi.bi-speedometer2.text-success
+                                                input#endMileageInput.form-control.form-control-lg.fw-bold.text-primary(type='number', required, placeholder='กรอกเลขไมล์สิ้นสุด')
+                                                span.input-group-text.bg-white.fw-bold กม.
+                                            small.text-muted กรุณากรอกเลขไมล์จริงจากหน้าปัดรถยนต์เมื่อใช้เสร็จ (ต้องมากกว่าเลขเริ่มต้น)
 
                                             // กล่องอัปโหลดภาพถ่ายสิ้นสุด (รูปจริงเท่านั้น)
                                             #endPhotoDropzone.photo-upload-dropzone.mt-2
@@ -685,7 +692,7 @@ html(lang='th')
                                     .col-6
                                         .calc-metric
                                             .metric-label ระยะทางที่เดินทางรวม
-                                            .metric-value#calcDistanceDisplay 65 กม.
+                                            .metric-value#calcDistanceDisplay - กม.
                                     .col-6
                                         .calc-metric
                                             .metric-label อัตราเงินชดเชยต่อกิโลเมตร
@@ -694,8 +701,8 @@ html(lang='th')
                                 .calc-total-card
                                     div
                                         .total-label เงินชดเชยค่าเดินทางที่ได้รับสุทธิ
-                                        .total-formula#calcFormulaDisplay (ระยะทาง 65 กม. × 5 บาท/กม.)
-                                    .total-amount#calcTotalDisplay ฿ 325.00 บาท
+                                        .total-formula#calcFormulaDisplay (กรุณากรอกเลขไมล์สิ้นสุดเพื่อคำนวณเงินชดเชย)
+                                    .total-amount#calcTotalDisplay ฿ 0.00 บาท
 
                         .modal-footer.bg-light.d-flex.flex-wrap.align-items-center.justify-content-between.gap-2
                             #returnValidationNotice.validation-notice.is-invalid-notice

@@ -310,11 +310,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('modalCarParking').textContent = parking;
         document.getElementById('modalPlatePreview').className = 'thai-license-plate ' + plateType;
 
-        // Populate mileage
+        // Populate mileage: แสดงเลขไมล์ปัจจุบันของรถยนต์คันที่เลือก
         const startMileageInput = document.getElementById('startMileageInput');
         if (startMileageInput) {
             startMileageInput.value = currentMileage;
             startMileageInput.setAttribute('min', currentMileage);
+            startMileageInput.setAttribute('readonly', 'readonly');
         }
 
         // Reset photo preview and destination input
@@ -538,11 +539,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Pre-fill end mileage (start + 65 km as typical demo trip)
-        const suggestedEndMileage = booking.startMileage + 65;
+        // เลขไมล์สิ้นสุด: ให้ผู้ใช้กรอกเอง (ไม่ pre-fill อัตโนมัติ)
         const endInput = document.getElementById('endMileageInput');
-        endInput.value = suggestedEndMileage;
-        endInput.setAttribute('min', booking.startMileage);
+        if (endInput) {
+            endInput.value = '';
+            endInput.setAttribute('min', booking.startMileage);
+            endInput.classList.remove('is-invalid');
+            endInput.placeholder = `กรอกเลขไมล์ที่มากกว่า ${booking.startMileage.toLocaleString()} กม.`;
+        }
 
         // Reset end photo & sample guide box
         resetEndPhoto();
@@ -647,21 +651,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 5. Live Calculation for Distance and Reimbursement
     function recalculateSettlement(startMileage) {
-        const endMileage = parseInt(document.getElementById('endMileageInput').value || '0', 10);
+        const endInputEl = document.getElementById('endMileageInput');
+        const endValStr = endInputEl ? endInputEl.value.trim() : '';
         const ratePerKm = parseFloat(document.getElementById('ratePerKmInput').value || '5.00');
-
-        const distance = Math.max(0, endMileage - startMileage);
-        const totalAmount = distance * ratePerKm;
 
         const distanceEl = document.getElementById('calcDistanceDisplay');
         const rateEl = document.getElementById('calcRateDisplay');
         const totalEl = document.getElementById('calcTotalDisplay');
         const formulaEl = document.getElementById('calcFormulaDisplay');
 
-        if (distanceEl) distanceEl.textContent = distance.toLocaleString() + ' กม.';
         if (rateEl) rateEl.textContent = ratePerKm.toFixed(2) + ' บ./กม.';
-        if (totalEl) totalEl.textContent = '฿ ' + totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        if (formulaEl) formulaEl.textContent = `(ระยะทาง ${distance} กม. × ${ratePerKm} บาท/กม.)`;
+
+        if (!endValStr || isNaN(parseInt(endValStr, 10))) {
+            if (distanceEl) distanceEl.textContent = '- กม.';
+            if (totalEl) totalEl.textContent = '฿ 0.00 บาท';
+            if (formulaEl) formulaEl.textContent = '(กรุณากรอกเลขไมล์สิ้นสุดเพื่อคำนวณเงินชดเชย)';
+            return;
+        }
+
+        const endMileage = parseInt(endValStr, 10);
+        if (endMileage < startMileage) {
+            if (distanceEl) distanceEl.textContent = '0 กม. (ไมล์น้อยกว่าเริ่มต้น)';
+            if (totalEl) totalEl.textContent = '฿ 0.00 บาท';
+            if (formulaEl) formulaEl.textContent = `(เลขไมล์ต้องมากกว่าหรือเท่ากับ ${startMileage.toLocaleString()} กม.)`;
+            return;
+        }
+
+        const distance = endMileage - startMileage;
+        const totalAmount = distance * ratePerKm;
+
+        if (distanceEl) distanceEl.textContent = distance.toLocaleString() + ' กม.';
+        if (totalEl) totalEl.textContent = '฿ ' + totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
+        if (formulaEl) formulaEl.textContent = `(ระยะทาง ${distance.toLocaleString()} กม. × ${ratePerKm.toFixed(2)} บาท/กม.)`;
     }
 
     const endMileageInput = document.getElementById('endMileageInput');
